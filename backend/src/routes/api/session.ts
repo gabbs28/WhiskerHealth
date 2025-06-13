@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { CredError, InvalidCredentialError, LoginError, NoResourceError } from "../../errors/customErrors";
 
-const express = require('express');
-const { Op } = require('sequelize');
-const bcrypt = require('bcryptjs');
+import express from 'express';
+import { Op } from 'sequelize';
+import bcrypt from 'bcryptjs';
 
-const { setTokenCookie, restoreUser } = require('../../utils/auth');
+import { setTokenCookie, restoreUser } from '../../utils/auth';
 
 
 import db from '../../db/models';
@@ -13,8 +13,8 @@ import { LoginUser } from "../../typings/data";
 const {User} = db
 
 
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
+import { check } from 'express-validator';
+import { handleValidationErrors } from '../../utils/validation';
 
 const router = express.Router();
 

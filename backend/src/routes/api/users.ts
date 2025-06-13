@@ -104,6 +104,7 @@ router.get('/all', async (req: Request, res: Response) => {
 
 router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
     try {
+        req.params.
         const userId = req.params.id;
         if (userId !== String(userId)) {
 

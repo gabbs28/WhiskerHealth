@@ -1,0 +1,358 @@
+generator seederClient {
+  provider     = "prisma-client"
+  output       = "../src/prisma-client"
+  moduleFormat = "esm"
+}
+
+generator backendClient {
+  provider     = "prisma-client"
+  output       = "../../backend/src/database/prisma-client"
+  moduleFormat = "cjs"
+}
+
+generator frontendClient {
+  provider     = "prisma-client"
+  output       = "../../frontend/src/database"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model appointments {
+  id         BigInt   @id @default(autoincrement())
+  pet_id     BigInt
+  vet_id     BigInt
+  info       String   @db.VarChar(100)
+  date       DateTime @db.Timestamptz(6)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pets       pets     @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+  vets       vets     @relation(fields: [vet_id], references: [id], onDelete: Cascade)
+
+  @@index([pet_id])
+  @@index([vet_id])
+}
+
+model charts {
+  id          BigInt       @id @default(autoincrement())
+  name        String       @db.VarChar(100)
+  description String       @db.VarChar(250)
+  units       String
+  upper_bound Decimal      @db.Decimal
+  lower_bound Decimal      @db.Decimal
+  created_at  DateTime     @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at  DateTime     @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pet_charts  pet_charts[]
+}
+
+model note_images {
+  id         BigInt   @id @default(autoincrement())
+  note_id    BigInt
+  url        String
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  notes      notes    @relation(fields: [note_id], references: [id], onDelete: Cascade)
+
+  @@index([note_id])
+}
+
+model note_symptoms {
+  id         BigInt                  @id @default(autoincrement())
+  note_id    BigInt
+  time       DateTime                @db.Timestamptz(6)
+  symptom    String                  @db.VarChar(250)
+  trigger    String                  @db.VarChar(250)
+  duration   Unsupported("interval")
+  severity   level_type
+  created_at DateTime                @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime                @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  notes      notes                   @relation(fields: [note_id], references: [id], onDelete: Cascade)
+
+  @@index([note_id])
+}
+
+model notes {
+  id             BigInt            @id @default(autoincrement())
+  pet_id         BigInt
+  date           DateTime          @db.Timestamptz(6)
+  title          String            @db.VarChar(100)
+  pain_level     level_type
+  fatigue_level  level_type
+  activity_level level_type
+  appetite_level level_type
+  water_intake   level_type
+  sleep_level    level_type
+  regular_meds   Boolean
+  relief_meds    Boolean
+  fecal_score    fecal_score_type?
+  fecal_color    fecal_color_type?
+  urine_color    urine_color_type?
+  notes          String?
+  created_at     DateTime          @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at     DateTime          @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  note_images    note_images[]
+  note_symptoms  note_symptoms[]
+  pets           pets              @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+
+  @@index([pet_id])
+}
+
+model pet_chart_data {
+  id           BigInt     @id @default(autoincrement())
+  pet_chart_id BigInt
+  date         DateTime   @db.Timestamptz(6)
+  value        Decimal    @db.Decimal
+  created_at   DateTime   @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at   DateTime   @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pet_charts   pet_charts @relation(fields: [pet_chart_id], references: [id], onDelete: Cascade)
+
+  @@index([pet_chart_id])
+}
+
+model pet_charts {
+  id             BigInt           @id @default(autoincrement())
+  chart_id       BigInt
+  pet_id         BigInt
+  created_at     DateTime         @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at     DateTime         @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pet_chart_data pet_chart_data[]
+  charts         charts           @relation(fields: [chart_id], references: [id], onDelete: Cascade)
+  pets           pets             @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+
+  @@index([chart_id])
+  @@index([pet_id])
+}
+
+model pet_images {
+  id         BigInt   @id @default(autoincrement())
+  pet_id     BigInt   @unique
+  url        String
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pets       pets     @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+
+  @@index([pet_id])
+}
+
+model pets {
+  id                BigInt           @id @default(autoincrement())
+  name              String           @db.VarChar(100)
+  breed             breed_type
+  birthday          DateTime         @db.Date
+  gender            gender_type
+  sterilized        Boolean
+  weight            Float            @db.Real
+  color             color_type
+  hair_length       hair_length_type
+  fur_pattern       fur_pattern_type
+  allergies         String[]
+  microchip         String           @db.VarChar(100)
+  medical_condition String[]
+  created_at        DateTime         @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at        DateTime         @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  appointments      appointments[]
+  notes             notes[]
+  pet_charts        pet_charts[]
+  pet_images        pet_images?
+  user_pets         user_pets[]
+}
+
+model providers {
+  id         BigInt   @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  address    String   @db.VarChar(100)
+  city       String   @db.VarChar(100)
+  state      String   @db.VarChar(100)
+  zip        Int      @db.SmallInt
+  phone      String   @db.VarChar(100)
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  vets       vets[]
+}
+
+model user_pets {
+  user_id    BigInt
+  pet_id     BigInt
+  created_at DateTime @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  pets       pets     @relation(fields: [pet_id], references: [id], onDelete: Cascade)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, pet_id])
+  @@index([pet_id])
+}
+
+model users {
+  id            BigInt      @id @default(autoincrement())
+  first_name    String      @db.VarChar(100)
+  last_name     String      @db.VarChar(100)
+  email         String      @unique @db.VarChar(100)
+  username      String      @unique @db.VarChar(100)
+  password_hash String      @db.VarChar(100)
+  created_at    DateTime    @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at    DateTime    @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  user_pets     user_pets[]
+}
+
+model vets {
+  id           BigInt         @id @default(autoincrement())
+  provider_id  BigInt
+  name         String         @db.VarChar(100)
+  created_at   DateTime       @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  updated_at   DateTime       @default(dbgenerated("clock_timestamp()")) @db.Timestamptz(6)
+  appointments appointments[]
+  providers    providers      @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+
+  @@index([provider_id])
+}
+
+enum breed_type {
+  Abyssinian
+  American_Bobtail           @map("American Bobtail")
+  American_Bobtail_Shorthair @map("American Bobtail Shorthair")
+  American_Curl              @map("American Curl")
+  American_Curl_Longhair     @map("American Curl Longhair")
+  American_Shorthair         @map("American Shorthair")
+  American_Wirehair          @map("American Wirehair")
+  Australian_Mist            @map("Australian Mist")
+  Balinese
+  Bengal
+  Bengal_Longhair            @map("Bengal Longhair")
+  Birman
+  Bombay
+  British_Longhair           @map("British Longhair")
+  British_Shorthair          @map("British Shorthair")
+  Burmese
+  Burmilla
+  Burmilla_Longhair          @map("Burmilla Longhair")
+  Chartreux
+  Chausie
+  Cornish_Rex                @map("Cornish Rex")
+  Cymric
+  Devon_Rex                  @map("Devon Rex")
+  Donskoy
+  Egyptian_Mau               @map("Egyptian Mau")
+  Exotic_Shorthair           @map("Exotic Shorthair")
+  Havana
+  Highlander
+  Highlander_Shorthair       @map("Highlander Shorthair")
+  Himalayan
+  Japanese_Bobtail           @map("Japanese Bobtail")
+  Japanese_Bobtail_Longhair  @map("Japanese Bobtail Longhair")
+  Khao_Manee                 @map("Khao Manee")
+  Korat
+  Kurilian_Bobtail           @map("Kurilian Bobtail")
+  Kurilian_Bobtail_Longhair  @map("Kurilian Bobtail Longhair")
+  LaPerm
+  LaPerm_Shorthair           @map("LaPerm Shorthair")
+  Lykoi
+  Maine_Coon                 @map("Maine Coon")
+  Maine_Coon_Polydactyl      @map("Maine Coon Polydactyl")
+  Manx
+  Minuet
+  Minuet_Longhair            @map("Minuet Longhair")
+  Munchkin
+  Munchkin_Longhair          @map("Munchkin Longhair")
+  Nebelung
+  Norwegian_Forest           @map("Norwegian Forest")
+  Ocicat
+  Oriental_Longhair          @map("Oriental Longhair")
+  Oriental_Shorthair         @map("Oriental Shorthair")
+  Persian
+  Peterbald
+  Pixie_Bob                  @map("Pixie-Bob")
+  Pixie_Bob_Longhair         @map("Pixie-Bob Longhair")
+  Ragdoll
+  Russian_Blue               @map("Russian Blue")
+  Savannah
+  Scottish_Fold              @map("Scottish Fold")
+  Scottish_Fold_Longhair     @map("Scottish Fold Longhair")
+  Scottish_Straight          @map("Scottish Straight")
+  Scottish_Straight_Longhair @map("Scottish Straight Longhair")
+  Selkirk_Rex                @map("Selkirk Rex")
+  Selkirk_Rex_Longhair       @map("Selkirk Rex Longhair")
+  Siamese
+  Siberian
+  Singapura
+  Snowshoe
+  Somali
+  Sphynx
+  Tennessee_Rex              @map("Tennessee Rex")
+  Thai
+  Tonkinese
+  Toyger
+  Turkish_Angora             @map("Turkish Angora")
+  Turkish_Van                @map("Turkish Van")
+}
+
+enum color_type {
+  Black
+  Orange
+  Chocolate
+  Cinnamon
+  Grey_Blue @map("Grey/Blue")
+  White
+  Cream
+  Fawn
+  Lilac
+}
+
+enum fecal_color_type {
+  Brown
+  Black
+  Red
+  Brown_with_white_spots @map("Brown with white spots")  
+  Yellow
+  Orange
+  Green
+}
+
+enum fecal_score_type {
+  Very_Hard_and_Dry                   @map("Very Hard and Dry")
+  Firm_but_not_hard                   @map("Firm but not hard")
+  Log_Shaped_with_moist_surface       @map("Log Shaped with moist surface")
+  Very_Moist_and_Soggy                @map("Very Moist and Soggy")
+  Very_Moist_but_Has_a_distinct_shape @map("Very Moist but Has a distinct shape")
+  Has_texture_but_no_defined_shape    @map("Has texture but no defined shape")
+  Watery_no_texture                   @map("Watery/no texture")
+}
+
+enum fur_pattern_type {
+  Solid
+  Bi_Color       @map("Bi-Color")
+  Calico
+  Mackerel_Tabby @map("Mackerel Tabby")
+  Classic_Tabby  @map("Classic Tabby")
+  Spotted_Tabby  @map("Spotted Tabby")
+  Tortoiseshell
+  Van
+  Pointed
+}
+
+enum gender_type {
+  Female
+  Male
+}
+
+enum hair_length_type {
+  Hairless
+  Short_hair @map("Short hair")
+  Long_hair  @map("Long hair")
+}
+
+enum level_type {
+  None
+  Low
+  Medium
+  High
+  Very_High @map("Very High")
+}
+
+enum urine_color_type {
+  Light_Yellow @map("Light Yellow")
+  Dark_Yellow  @map("Dark Yellow")
+  Brown
+  Cloudy
+  Pink_or_Red  @map("Pink or Red")
+}
