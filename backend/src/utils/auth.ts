@@ -1,6 +1,8 @@
 import { NextFunction, Response } from "express";
 import { AuthReq, JwtPayload } from "../typings/express";
 import { AuthError } from "../errors/customErrors";
+import { users } from "../database/prisma-client";
+import { SafeUserType, SelectSafeUser } from "../database/selects/users";
 
 const jwt = require('jsonwebtoken')
 const { jwtConfig } = require('../config');
@@ -40,13 +42,13 @@ export const setMobileToken = (res:Response, user:any) => {
 }
 
 // Sends a JWT Cookie
-export const setTokenCookie = (res:Response, user:any) => {
+// Accept any objects in the shape of a safe user 
+export const setTokenCookie = (res:Response, user:SafeUserType) => {
   // Create the token.
-
   const safeUser = {
     id: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
+    first_name: user.first_name,
+    last_name: user.last_name,
     email: user.email,
     username: user.username
   };

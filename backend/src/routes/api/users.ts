@@ -2,15 +2,16 @@ import { NextFunction, Request, Response } from 'express';
 import { AuthReq } from "../../typings/express";
 import { setTokenCookie, requireAuth, restoreUser } from "../../utils/auth";
 import { handleValidationErrors } from '../../utils/validation';
-const { check } = require('express-validator');
-const bcrypt = require('bcryptjs');
+import { check } from 'express-validator';
+import bcrypt from 'bcryptjs';
+import { prisma } from '../../database/client';
+// const { Op } = require('sequelize')
 
-const { Op } = require('sequelize')
 
-
-import db from '../../db/models'
+// import db from '../../db/models'
 import { errors } from '../../typings/errors';
 import { NoResourceError } from '../../errors/customErrors';
+import { SafeUserType, SelectSafeUser } from '../../database/selects/users';
 
 const { User, UserImage } = db
 
@@ -36,21 +37,25 @@ const validateSignup = [
 
 // Sign up
 router.post('/', validateSignup, async (req: Request, res: Response, next: NextFunction) => {
-    const { firstName, lastName, email, password, username, isHost } = req.body;
-    const hashedPassword = bcrypt.hashSync(password);
+    const { first_name, last_name, email, password, username } = req.body;
+    const password_hash = bcrypt.hashSync(password);
 
-
-    let existingUser = await User.findOne({
+    //checking if user exists already
+    const existingUser = await prisma.users.findFirst({
         where: {
-            [Op.or]: {
-                username,
-                email
-            }
+            OR : [{username}, {email}]
         }
     })
+    // let existingUser = await User.findOne({
+    //     where: {
+    //         [Op.or]: {
+    //             username,
+    //             email
+    //         }
+    //     }
+    // })
 
     if (existingUser) {
-        if (existingUser) existingUser = existingUser.toJSON()
         let errors: errors = {}
 
         if (existingUser.email === email) {
@@ -63,16 +68,20 @@ router.post('/', validateSignup, async (req: Request, res: Response, next: NextF
         return res.json({ message: "User already exists", errors })
     } else {
         try {
-            const user = await User.create({ firstName, lastName, email, username, hashedPassword, isHost: isHost || false });
+            const user = await prisma.users.create({
+                data: {
+                    first_name, last_name, email, username, password_hash
+                },
+                select: SelectSafeUser
+            })
+            // const user = await User.create({ firstName, lastName, email, username, hashedPassword, isHost: isHost || false });
 
-            const safeUser = await user.getSafeUser();
+            await setTokenCookie(res, user);
 
-            await setTokenCookie(res, safeUser);
+            return res.json(
+                user,
 
-            return res.json({
-                ... safeUser,
-
-            });
+            );
         } catch (e) {
             return next(e)
         }

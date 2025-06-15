@@ -1,16 +1,18 @@
 import { NextFunction, Request, Response } from "express";
-import { CredError, InvalidCredentialError, LoginError, NoResourceError } from "../../errors/customErrors";
+import { CredError, InvalidCredentialError, LoginError } from "../../errors/customErrors";
+import {prisma} from '../../database/client'
+
 
 import express from 'express';
-import { Op } from 'sequelize';
+// import { Op } from 'sequelize';
 import bcrypt from 'bcryptjs';
 
 import { setTokenCookie, restoreUser } from '../../utils/auth';
 
 
-import db from '../../db/models';
-import { LoginUser } from "../../typings/data";
-const {User} = db
+// import db from '../../db/models';
+// import { LoginUser } from "../../typings/data";
+// const {User} = db
 
 
 import { check } from 'express-validator';
@@ -37,17 +39,22 @@ router.post(
         const { credential, password } = req.body;
             if(credential && password){
                 try{
-                let user = await User.unscoped().findOne({
-                    where: {
-                        [Op.or]: {
-                            username: credential,
-                            email: credential,
+                        // Check if the username and password are valid.
+                    const user = await prisma.users.findFirst({
+                        where: { 
+                            OR : [{username: credential}, {email: credential}]
                         },
-                    }
-                });
+                    });
+                // let user = await User.unscoped().findOne({
+                //     where: {
+                //         [Op.or]: {
+                //             username: credential,
+                //             email: credential,
+                //         },
+                //     }
+                // });
 
-                if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
-                    console.log("?")
+                if (!user || !bcrypt.compareSync(password, user.password_hash)) {
                     const err = new LoginError('Invalid credentials', 401);
                     err.status = 401;
                     throw err
@@ -56,8 +63,14 @@ router.post(
 
                 await setTokenCookie(res, user);
 
-                let loginUser = await user.getSafeUser()
-                console.log(loginUser, "user!")
+                //safeuser
+                let loginUser = {
+                    id: user.id,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    username: user.username,
+                    email: user.email,
+                }
                 return res.json({
                     ...loginUser
                 });
