@@ -1,19 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { AuthReq } from "../../typings/express";
-import { setTokenCookie, requireAuth, restoreUser } from "../../utils/auth";
+import { setTokenCookie, restoreUser } from "../../utils/auth";
 import { handleValidationErrors } from '../../utils/validation';
 import { check } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../../database/client';
-// const { Op } = require('sequelize')
-
-
-// import db from '../../db/models'
+import { createSafeUser } from '../../utils/auth';
 import { errors } from '../../typings/errors';
-import { NoResourceError } from '../../errors/customErrors';
-import { SafeUserType, SelectSafeUser } from '../../database/selects/users';
-
-const { User, UserImage } = db
+import { SelectSafeUser } from '../../database/selects/users';
 
 
 const router = require('express').Router();
@@ -46,14 +40,6 @@ router.post('/', validateSignup, async (req: Request, res: Response, next: NextF
             OR : [{username}, {email}]
         }
     })
-    // let existingUser = await User.findOne({
-    //     where: {
-    //         [Op.or]: {
-    //             username,
-    //             email
-    //         }
-    //     }
-    // })
 
     if (existingUser) {
         let errors: errors = {}
@@ -74,7 +60,6 @@ router.post('/', validateSignup, async (req: Request, res: Response, next: NextF
                 },
                 select: SelectSafeUser
             })
-            // const user = await User.create({ firstName, lastName, email, username, hashedPassword, isHost: isHost || false });
 
             await setTokenCookie(res, user);
 
@@ -92,7 +77,7 @@ router.post('/', validateSignup, async (req: Request, res: Response, next: NextF
 router.get('/', restoreUser, async (req: AuthReq, res: Response) => {
     const { user } = req;
     if (user) {
-        const safeUser = user.getSafeUser();
+        const safeUser = createSafeUser(user);
         return res.json({
             user: safeUser
         });
@@ -100,35 +85,42 @@ router.get('/', restoreUser, async (req: AuthReq, res: Response) => {
 });
 
 //get all users
-router.get('/all', async (req: Request, res: Response) => {
+router.get('/all', async (_req: Request, res: Response) => {
 
-    const users = await User.findAll({
-        include: {
-            model: UserImage,
-        }
-    });
+    const users = await prisma.users.findMany({
+        select: SelectSafeUser,
+        orderBy: [
+            {
+                last_name : "desc"
+            },
+            {
+                first_name : "desc"
+            }
+        ]
+    })
+
     res.json(users)
 })
 
 
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        req.params.
-        const userId = req.params.id;
-        if (userId !== String(userId)) {
+// router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         req.params.
+//         const userId = req.params.id;
+//         if (userId !== String(userId)) {
 
-            const user = await User.findByPk(userId);
-            if (!user) throw new NoResourceError("No user found with those credentials", 404);
-            user.destroy();
-            res.status(202);
-            res.json({ user: null });
-        } else {
-            throw new Error("You can not delete the Demo User account.")
-        }
-    } catch (error) {
-        next(error);
-    }
-})
+//             const user = await User.findByPk(userId);
+//             if (!user) throw new NoResourceError("No user found with those credentials", 404);
+//             user.destroy();
+//             res.status(202);
+//             res.json({ user: null });
+//         } else {
+//             throw new Error("You can not delete the Demo User account.")
+//         }
+//     } catch (error) {
+//         next(error);
+//     }
+// })
 
 
 

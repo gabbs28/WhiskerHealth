@@ -1,13 +1,11 @@
 import { NextFunction, Response } from "express";
-import { AuthReq, JwtPayload } from "../typings/express";
+import { AuthReq } from "../typings/express";
 import { AuthError } from "../errors/customErrors";
-import { users } from "../database/prisma-client";
-import { SafeUserType, SelectSafeUser } from "../database/selects/users";
+import { SafeUserType} from "../database/selects/users";
+import jwt from 'jsonwebtoken';
+import { jwtConfig } from '../config';
+import { prisma } from "../database/client";
 
-const jwt = require('jsonwebtoken')
-const { jwtConfig } = require('../config');
-import db from '../db/models'
-const {User} = db;
 const { secret, expiresIn } = jwtConfig;
 
 
@@ -32,7 +30,7 @@ export const setMobileToken = (res:Response, user:any) => {
   const token = jwt.sign(
     {data: safeUser},
     secret,
-    {expiresIn: parseInt(expiresIn)}
+    {expiresIn: expiresIn}
   );
 
   res.header({
@@ -40,24 +38,26 @@ export const setMobileToken = (res:Response, user:any) => {
   })
   return token;
 }
-
-// Sends a JWT Cookie
-// Accept any objects in the shape of a safe user 
-export const setTokenCookie = (res:Response, user:SafeUserType) => {
-  // Create the token.
-  const safeUser = {
+export const createSafeUser = (user:SafeUserType) => {
+  return {
     id: user.id,
     first_name: user.first_name,
     last_name: user.last_name,
     email: user.email,
     username: user.username
   };
+}
+// Sends a JWT Cookie
+// Accept any objects in the shape of a safe user 
+export const setTokenCookie = (res:Response, user:SafeUserType) => {
+  // Create the token.
+  const safeUser = createSafeUser(user);
 
 
   const token = jwt.sign(
     { data: safeUser },
     secret,
-    { expiresIn: parseInt(expiresIn) } // 604,800 seconds = 1 week
+    { expiresIn: expiresIn } // 604,800 seconds = 1 week
   );
 
   const isProduction = process.env.NODE_ENV === "production";
@@ -77,17 +77,23 @@ export const restoreUser = (req:any, res:any, next:NextFunction) => {
   const { token } = req.cookies;
   req.user = null;
 
-  return jwt.verify(token, secret, null, async (err:any, jwtPayload:JwtPayload) => {
+  return jwt.verify(token as string, secret,  async (err, jwtPayload) => {
     if (err) {
-      return next();
+      next();
+      return;
     }
+
     try {
+      if (jwtPayload === undefined || typeof jwtPayload === "string") {
+          throw new Error("invalid data")
+;      }
       const { id } = jwtPayload.data;
-      req.user = await User.findByPk(id, {
-        attributes: {
-          include: ['email', 'createdAt', 'updatedAt']
+      req.user = await prisma.users.findUnique({
+        where: {
+          id : id
         }
-      });
+      })
+
     } catch (e) {
       res.clearCookie('token');
       return next();

@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthError } from "../errors/customErrors";
-
-const { validationResult, check } = require('express-validator');
+import { validationResult, check } from 'express-validator';
 
 // middleware for formatting errors from express-validator middleware
 // (to customize, see express-validator's documentation)

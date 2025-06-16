@@ -8,9 +8,17 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { NoResourceError } from './errors/customErrors';
 import routes from './routes'
+import { users } from './database/prisma-client';
 
 const { environment } = require('./config');
 const isProduction = environment === 'production';
+
+declare module 'express-serve-static-core' {
+    // noinspection JSUnusedGlobalSymbols
+    interface Request {
+        user?: users;
+    }
+}
 
 const app = express();
 

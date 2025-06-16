@@ -1,20 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { CredError, InvalidCredentialError, LoginError } from "../../errors/customErrors";
 import {prisma} from '../../database/client'
-
-
 import express from 'express';
-// import { Op } from 'sequelize';
 import bcrypt from 'bcryptjs';
-
 import { setTokenCookie, restoreUser } from '../../utils/auth';
-
-
-// import db from '../../db/models';
-// import { LoginUser } from "../../typings/data";
-// const {User} = db
-
-
 import { check } from 'express-validator';
 import { handleValidationErrors } from '../../utils/validation';
 
@@ -45,14 +34,6 @@ router.post(
                             OR : [{username: credential}, {email: credential}]
                         },
                     });
-                // let user = await User.unscoped().findOne({
-                //     where: {
-                //         [Op.or]: {
-                //             username: credential,
-                //             email: credential,
-                //         },
-                //     }
-                // });
 
                 if (!user || !bcrypt.compareSync(password, user.password_hash)) {
                     const err = new LoginError('Invalid credentials', 401);
@@ -60,8 +41,7 @@ router.post(
                     throw err
                 }
 
-
-                await setTokenCookie(res, user);
+                setTokenCookie(res, user);
 
                 //safeuser
                 let loginUser = {

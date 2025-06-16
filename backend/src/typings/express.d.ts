@@ -10,13 +10,13 @@ export interface SafeUser {
 }
 
 export interface CustomeRequest extends Request {
-    user: null | SafeUser;
+    // user: null | SafeUser;
     cookies: {token: string};
     file?: any
 }
 
 export interface RestoreResponseInterface extends Request{
-    user: null | any;
+    // user: null | any;
     cookies: {token: string}
 }
 
@@ -26,5 +26,5 @@ export interface JwtPayload {
 
 
 export interface AuthReq extends Request {
-    user: any
+    // user: any
 }
