@@ -4,9 +4,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import {portnum} from '../config/index'
+import {port} from '../config/index'
 
-const {port} = ;
 
 import app from '../app'
 

@@ -1,6 +1,6 @@
 export const environment: string = process.env.NODE_ENV || 'development';
 
-export const portnum: number = parseInt(process.env.PORT || "8000", 10);
+export const port: number = parseInt(process.env.PORT || "8000", 10);
 
 export const db: DatabaseConfiguration = {
     username: process.env.DB_USERNAME as string,
