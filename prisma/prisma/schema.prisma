@@ -9,7 +9,7 @@ generator backendClient {
   output       = "../../backend/src/database/prisma-client"
   moduleFormat = "cjs"
 }
-
+ 
 generator frontendClient {
   provider     = "prisma-client"
   output       = "../../frontend/src/database"

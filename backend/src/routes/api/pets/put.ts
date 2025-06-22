@@ -1,56 +1,32 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client'
+import express, { NextFunction, Request, Response } from 'express';
+import { prisma } from '../../../database/client';
+import { pets } from '../../../database/prisma-client';
+import { PetBody, validatePet, isValidPet } from './helper';
+import { PetsScalarFieldEnum } from '../../../database/prisma-client/internal/prismaNamespace';
+
 
 const router = express.Router();
 
-// get pets
-router.post('/', async (request: Request, response: Response) => {
-    // Get all pets that belong to the current logged-in user
-    const pets = await prisma.pets.findMany({
-        where: {
-            user_pets: {
-                every: {
-                    //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
-                    user_id: request.user?.id ?? -1,
-                },
-            },
-        },
-        include: {
-            pet_images: {
-                select: {
-                    url: true,
-                },
-            },
-        },
-    })
+// create pet profile
+router.put(
+    '/:id', 
+    validatePet,
 
-    //Return pets
-    response.status(200).json(pets);
-});
+    async (req:Request <{id: bigint}, {}, PetBody>, res:Response<pets>) => {
+        const data = req.body;
 
-router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
-    // Get pet by id (only if it belongs to the user)
-    const pet = await prisma.pets.findFirstOrThrow({
-        where: {
-            id: request.params.id ?? -1,
-            user_pets: {
-                every: {
-                    user_id: request.user?.id ?? -1,
-                },
+        await isValidPet(req.user?.id, req.params.id)
+        
+        const pet = await prisma.pets.update({
+            where: {
+                id: req.params.id ?? -1,
             },
-        },
-        include: {
-            pet_images: {
-                select: {
-                    url: true,
-                },
-            },
-        },
-    });
+            data
+        })
 
-    //Return pet
-    response.status(200).json(pet);
-});
+        res.json(pet)
+    }
+);
 
 // Export router
 export default router;

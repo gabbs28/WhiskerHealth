@@ -4,7 +4,7 @@ import { validationResult, check } from 'express-validator';
 
 // middleware for formatting errors from express-validator middleware
 // (to customize, see express-validator's documentation)
-export const handleValidationErrors = (req:Request , _res:Response, next:NextFunction) => {
+export const handleValidationErrors = (req:Request<any>, _res:Response, next:NextFunction) => {
     const validationErrors = validationResult(req);
 
     if (!validationErrors.isEmpty()) {
@@ -18,6 +18,7 @@ export const handleValidationErrors = (req:Request , _res:Response, next:NextFun
         err.status = 400;
         err.title = "Bad request.";
         next(err);
+        return
     }
     next();
 };
