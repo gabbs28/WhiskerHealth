@@ -52,5 +52,26 @@ router.get('/:id', async (request: Request<{ id: number }>, response: Response) 
     response.status(200).json(pet);
 });
 
+// get all pet notes
+router.get('/:id/notes', async (request: Request<{ id: number }>, response: Response) => {
+    // Get all notes that belong to the current logged-in user
+    const notes = await prisma.notes.findMany({
+        where: {
+            pet_id: request.params.id ?? -1,
+            pets: {
+                user_pets: {
+                    every: {
+                        //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
+                        user_id: request.user?.id ?? -1,
+                    },
+                },
+            }
+        }
+    })
+
+    //Return notes
+    response.status(200).json(notes);
+});
+
 // Export router
 export default router;

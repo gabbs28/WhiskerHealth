@@ -3,45 +3,20 @@ import { prisma } from '../../../database/client'
 
 const router = express.Router();
 
-// get notes
 router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
-    // Get all notes that belong to the current logged-in user
-    const notes = await prisma.notes.findMany({
+    // Get note by id (only if it belongs to the user)
+    const pet = await prisma.notes.findFirstOrThrow({
         where: {
-            pet_id: request.params.id ?? -1,
-            pets: {
-                user_pets: {
-                    every: {
-                        //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
-                        user_id: request.user?.id ?? -1,
+                id: request.params.id ?? -1,
+                pets: {
+                    user_pets: {
+                        every: {
+                            //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
+                            user_id: request.user?.id ?? -1,
+                        },
                     },
-                },
+                }
             }
-        }
-    })
-
-    //Return notes
-    response.status(200).json(notes);
-});
-
-router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
-    // Get pet by id (only if it belongs to the user)
-    const pet = await prisma.pets.findFirstOrThrow({
-        where: {
-            id: request.params.id ?? -1,
-            user_pets: {
-                every: {
-                    user_id: request.user?.id ?? -1,
-                },
-            },
-        },
-        include: {
-            pet_images: {
-                select: {
-                    url: true,
-                },
-            },
-        },
     });
 
     //Return pet
