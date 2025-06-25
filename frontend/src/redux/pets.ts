@@ -65,10 +65,25 @@ export const getPetNotesData = (id: number) => {
     }
 }
 
-export const postPet = async (pet: pets) => {
+export const postPet = async (pet: PetsBody) => {
     return csrfFetch(`/api/pets`, {
         method: 'POST',
         body: JSON.stringify(pet)
+    })
+        .then(response => response.json)
+}
+
+export const putPet = async (id: number, pet: PetsBody) => {
+    return csrfFetch(`/api/pets/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(pet)
+    })
+        .then(response => response.json)
+}
+
+export const deletePet = async (id: number) => {
+    return csrfFetch(`/api/pets/${id}`, {
+        method: 'DELETE',
     })
         .then(response => response.json)
 }

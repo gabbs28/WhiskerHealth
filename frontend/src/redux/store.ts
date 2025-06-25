@@ -9,16 +9,24 @@ import sessionReducer from "./session";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { SessionInitialState } from "./types/session";
 import type { Middleware } from 'redux';
+import { PetInitialState } from "./types/pets";
+import { NoteInitialState } from "./types/notes";
+import petsReducer from "./pets";
+import notesReducer from "./notes";
 
 
 // Combined root state type
 export interface RootState {
   session: SessionInitialState;
+  pets : PetInitialState;
+  notes : NoteInitialState
 }
 
 
 const rootReducer = combineReducers<RootState>({
   session: sessionReducer,
+  pets: petsReducer,
+  notes: notesReducer
 });
 
 // Define middleware array
