@@ -25,6 +25,14 @@ if (import.meta.env.VITE_NODE_ENV !== "production") {
   window.sessionActions = sessionActions;
 }
 
+// if (process.env.NODE_ENV !== 'production') {
+//   restoreCSRF();
+
+//   window.csrfFetch = csrfFetch;
+//   window.store = store;
+//   window.sessionActions = sessionActions;
+// }
+
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

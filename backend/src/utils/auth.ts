@@ -5,6 +5,7 @@ import { SafeUserType} from "../database/selects/users";
 import jwt from 'jsonwebtoken';
 import { jwtConfig } from '../config';
 import { prisma } from "../database/client";
+import { stringify } from "../app";
 
 const { secret, expiresIn } = jwtConfig;
 
@@ -28,7 +29,7 @@ export const setMobileToken = (res:Response, user:any) => {
 
 
   const token = jwt.sign(
-    {data: safeUser},
+    {data: JSON.parse(stringify(safeUser))},
     secret,
     {expiresIn: expiresIn}
   );
@@ -55,7 +56,7 @@ export const setTokenCookie = (res:Response, user:SafeUserType) => {
 
 
   const token = jwt.sign(
-    { data: safeUser },
+    {data: JSON.parse(stringify(safeUser))},
     secret,
     { expiresIn: expiresIn } // 604,800 seconds = 1 week
   );

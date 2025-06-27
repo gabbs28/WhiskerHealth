@@ -75,15 +75,19 @@ export interface PetBody extends Omit<
 
 //checking if pet belongs to user
 //undefined means not set or null, will use -1 in that case
-export const isValidPet = async (user_id: bigint | undefined, pet_id: bigint | undefined): Promise<pets> => {
-    return await prisma.pets.findFirstOrThrow({
+export const isValidPet = async (user_id: bigint| undefined, pet_id: bigint | number| undefined): Promise<pets> => {
+    const pet = await prisma.user_pets.findFirstOrThrow({
         where: {
-            id: pet_id ?? -1,
-            user_pets: {
-                every: {
-                    user_id: user_id ?? -1,
-                },
-            },
-        }
-    });
+            user_id, 
+            pet_id
+        },
+        select: {
+            pets: {
+                include: {
+                    pet_images: true,
+                }
+            }
+        },
+    })
+    return pet.pets
 }

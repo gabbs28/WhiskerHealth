@@ -22,15 +22,55 @@ declare module 'express-serve-static-core' {
 
 const app = express();
 
+export const stringify = (data: unknown): string => {
+    // Convert bigint to strings
+    const replacer = (_key: string, value: unknown) =>
+        typeof value === 'bigint' ? value.toString() : value;
+
+    // Use the custom replacer when serializing the data
+    return JSON.stringify(data, replacer);
+};
+
+const serializationJson = (_request: Request, response: Response, next: NextFunction) => {
+    // Save the original res.json function
+    const json = response.json;
+
+    // Replace the response.json function with a custom one
+    response.json = (data) => {
+        // Call the original function after passing the data through a custom stringification logic
+        return data === undefined
+            ? json.call(response, data)
+            : json.call(response, JSON.parse(stringify(data)));
+    };
+
+    // Continue with the request
+    next();
+};
+
+app.use(serializationJson)
+
 
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 
 // Security Middleware
-if (!isProduction) {
-    // enable cors only in development
-    app.use(cors());
+if (isProduction) {
+    app.use(
+        csurf({
+            cookie: {
+                secure: true,
+                sameSite: "lax",
+                httpOnly: true
+            }
+        })
+    );
+} else {
+    app.use(
+        csurf({
+            cookie: true
+        })
+    );
 }
 
 // helmet helps set a variety of headers to better secure your app
@@ -102,5 +142,4 @@ app.use((err: NoResourceError, _req: Request, res: Response, _next: NextFunction
 });
 
 
-
-export = app;
+export default app;

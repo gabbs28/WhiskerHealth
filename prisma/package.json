@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "gaby": "ts-node prisma/seed.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.4"

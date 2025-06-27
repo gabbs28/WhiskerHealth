@@ -18,7 +18,6 @@ function Test() {
         Promise.all(
             [
                 dispatch(getAllPetsData(params.id)),
-                dispatch(getSpotReviewsData(params.spotId))
             ]
         ).then(() => setIsLoaded(true))
     }, [dispatch, params.spotId]);
