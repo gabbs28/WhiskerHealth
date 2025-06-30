@@ -1,111 +1,181 @@
-import { csrfFetch } from "./csrf"
-import { PetInitialState, Pets, PetsBody } from "./types/pets"
-import { pets, notes } from "../database"
-import { IActionCreator } from "./types/redux";
+import {csrfFetch} from "./csrf"
+import {PetActionPayload, PetInitialState, PetsBody} from "./types/pets"
+import {notes, pets} from "../database/client"
+import {ActionCreator} from "./types/redux";
+import {AppDispatch, AppThunk} from "./store.ts";
+import {ThunkError} from "./error.ts";
 
-
-//define action types
-const GET_ALL_PETS = "/pets/getAllPets"
-const GET_PET = "/pets/getPet"
-const GET_PET_NOTES = "/pets/getPetNotes"
-
-//define actions
-const getAllPetsAction = (allPets: pets[]) => {
-    return {
-        type: GET_ALL_PETS,
-        payload: allPets
-    }
+//define types
+export enum PetActionTypes {
+    GET_ALL_PETS = "/pets/getAllPets",
+    GET_PET = "/pets/getPet",
+    GET_PET_NOTES = "/pets/getPetNotes",
 }
 
-const getPetAction = (pet: pets) => {
+//define actions
+const getPetAction = (pet: pets): ActionCreator<PetActionTypes, PetActionPayload> => {
     return {
-        type: GET_PET,
+        type: PetActionTypes.GET_PET,
         payload: pet
     }
 }
 
-const getPetNotesAction =(notes: notes[]) => {
+const getAllPetsAction = (allPets: pets[]): ActionCreator<PetActionTypes, PetActionPayload> => {
     return {
-        type:GET_PET_NOTES,
+        type: PetActionTypes.GET_ALL_PETS,
+        payload: allPets
+    }
+}
+
+const getPetNotesAction = (notes: notes[]): ActionCreator<PetActionTypes, PetActionPayload> => {
+    return {
+        type: PetActionTypes.GET_PET_NOTES,
         payload: notes
     }
 }
 
 //define thunks
-export const getAllPetsData = () => {
-    return async (dispatch: any) => {
-        //api call
-        return csrfFetch(`/api/pets`)
-        .then(response => response.json())
-        .then(allPetsData => {
-            dispatch(getAllPetsAction(allPetsData));
-        })
+export const getPetData = (id: number): AppThunk => {
+    return async (dispatch: AppDispatch) => {
+        // Attempt to get a specific pet for the current user
+        const response = await csrfFetch(`/api/pets/${id}`);
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Get Pet Failure", data.errors ?? {});
+            }
+
+            // Update state
+            dispatch(getPetAction(data));
+        }
     }
 }
 
-export const getPetData = (id: number) => {
-    return async (dispatch: any) => {
-        //api call
-        return csrfFetch(`/api/pets/${id}`)
-        .then(response => response.json())
-        .then(petData => {
-            dispatch(getPetAction(petData));
-        })
+export const getAllPetsData = (): AppThunk => {
+    return async (dispatch: AppDispatch) => {
+        // Attempt to get all pets for the current user
+        const response = await csrfFetch("/api/pets");
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Get All Pets Failure", data.errors ?? {});
+            }
+
+            // Update state
+            dispatch(getAllPetsAction(data));
+        }
     }
 }
 
-export const getPetNotesData = (id: number) => {
-    return async (dispatch: any) => {
-        //api call
-        return csrfFetch(`/api/pets/${id}/notes`)
-        .then(response => response.json())
-        .then(petNotesData => {
-            dispatch(getPetNotesAction(petNotesData));
-        })
+export const getPetNotesData = (id: number): AppThunk => {
+    return async (dispatch: AppDispatch) => {
+        // Attempt to get all notes for a specific pet for the current user
+        const response = await csrfFetch(`/api/pets/${id}/notes`);
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Get Pet Notes Failure", data.errors ?? {});
+            }
+
+            // Update state
+            dispatch(getPetNotesAction(data));
+        }
     }
 }
 
 export const postPet = async (pet: PetsBody) => {
-    return csrfFetch(`/api/pets`, {
-        method: 'POST',
-        body: JSON.stringify(pet)
-    })
-        .then(response => response.json)
+    return async () => {
+        // Attempt to create a pet
+        const response = await csrfFetch(`/api/pets`, {
+            method: 'POST',
+            body: JSON.stringify(pet)
+        });
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Create Pet Failure", data.errors ?? {});
+            }
+        }
+    }
 }
 
 export const putPet = async (id: number, pet: PetsBody) => {
-    return csrfFetch(`/api/pets/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(pet)
-    })
-        .then(response => response.json)
+    return async () => {
+        // Attempt to update a pet
+        const response = await csrfFetch(`/api/pets/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(pet)
+        });
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Update Pet Failure", data.errors ?? {});
+            }
+        }
+    }
 }
 
 export const deletePet = async (id: number) => {
-    return csrfFetch(`/api/pets/${id}`, {
-        method: 'DELETE',
-    })
-        .then(response => response.json)
+    return async () => {
+        // Attempt to update a pet
+        const response = await csrfFetch(`/api/pets/${id}`, {
+            method: 'DELETE'
+        });
+
+        // If a response is returned, validate it
+        if (response.ok) {
+            // Parse response as JSON
+            const data = await response.json();
+
+            // If the "error" field is set, return errors
+            if (data?.error) {
+                throw new ThunkError("Delete Pet Failure", data.errors ?? {});
+            }
+        }
+    }
 }
 
 //default state
-const initialState: PetInitialState ={
-    allPets: null,
+const initialState: PetInitialState = {
     pet: null,
-    notes: null
+    pets: [],
+    notes: []
 }
 
 //define reducer
-
-function petsReducer(state = initialState, action: IActionCreator): PetInitialState {
-
+function petsReducer(state = initialState, action: ActionCreator<PetActionTypes, PetActionPayload>): PetInitialState {
     switch (action.type) {
-        case GET_ALL_PETS:
-            return {...state, allPets: action.payload};
-        case GET_PET:
+        case PetActionTypes.GET_PET:
             return {...state, pet: action.payload};
-        case GET_PET_NOTES:
-            return {...state, notes: action.payload};
+        case PetActionTypes.GET_ALL_PETS:
+            return {...state, pets: action.payload ?? []};
+        case PetActionTypes.GET_PET_NOTES:
+            return {...state, notes: action.payload ?? []};
         default:
             return state;
 

@@ -1,8 +1,10 @@
 import { notes } from '../../database';
 
 export interface NoteInitialState {
-    note: null | NotesBody;
+    note: notes | null
 }
+
+export type NoteActionPayload = notes | null;
 
 export interface NotesBody extends Omit<
     // Starting model (base prisma model)
@@ -11,4 +13,4 @@ export interface NotesBody extends Omit<
     'created_at' | 'updated_at'
 > {
 
-};
+}

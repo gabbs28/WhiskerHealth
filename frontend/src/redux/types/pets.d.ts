@@ -1,10 +1,12 @@
-import { pets, notes } from '../../database';
+import {notes, pets} from '../../database';
 
 export interface PetInitialState {
-    allPets: null | PetsBody;
-    pet: null | PetsBody;
-    notes: null | NotesBody;
+    pet: pets | null
+    pets: pets[];
+    notes: notes[];
 }
+
+export type PetActionPayload = pet | pet[] | notes[] | null;
 
 export interface PetsBody extends Omit<
     // Starting model (base prisma model)
@@ -13,13 +15,4 @@ export interface PetsBody extends Omit<
     'created_at' | 'updated_at'
 > {
 
-};
-
-export interface NotesBody extends Omit<
-    // Starting model (base prisma model)
-    notes,
-    // Excluded fields
-    'created_at' | 'updated_at'
-> {
-
-};
+}

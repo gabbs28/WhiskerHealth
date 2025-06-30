@@ -1,12 +1,13 @@
 import Cookies from 'js-cookie';
-import { CSRFHttpOptions } from './types/redux';
+import {CSRFHttpOptions} from './types/redux';
 
-
-
-export async function csrfFetch(url: string, options: CSRFHttpOptions = {}) {
+export async function csrfFetch(url: string, options: CSRFHttpOptions = {
+    method: 'GET'
+}) {
     // set options.method to 'GET' if there is no method
-    options.method = options.method || 'GET';
-    // set options.headers to an empty object if there is no headers
+    options.method = options.method ?? 'GET';
+
+    // set options.headers to an empty object if there are no headers
     options.headers = options.headers || {};
 
     // if the options.method is not 'GET', then set the "Content-Type" header to
