@@ -1,70 +1,83 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client'
-import { isValidPet } from './helper';
+import express, {Request, Response} from 'express';
+import {prisma} from '../../../database/client'
+import {isValidPet} from './helper';
+import {generateErrorResponse} from "../../../utils/errors";
 
 const router = express.Router();
 
 // get pets
 router.get('/', async (request: Request, response: Response) => {
+    // Get the id of the user
+    const userId = request.user?.id
+    
     // Get all pets that belong to the current logged-in user
     const pets = await prisma.user_pets.findMany({
-            where: {
-                user_id: request.user?.id ?? -1,
-            },
-            select: {
-                pets: {
-                    include: {
-                        pet_images: true,
-                    }
+        where: {
+            user_id: userId ?? -1,
+        },
+        select: {
+            pets: {
+                include: {
+                    pet_images: true,
                 }
-            },
-        })
+            }
+        },
+    })
 
+    // Format response to be an array of pets
     const petsData = pets.map(pet => pet.pets)
-    //Return pets
-    response.status(200).json(petsData);
+
+    // Return pets
+    response.json(petsData);
 });
 
 router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
-    // Get pet by id (only if it belongs to the user)
-    const pet = await prisma.user_pets.findFirstOrThrow({
-            where: {
-                user_id: request.user?.id ?? -1,
-                pet_id: request.params.id
-            },
-            select: {
-                pets: {
-                    include: {
-                        pet_images: true,
-                    }
-                }
-            },
-        })
+    // Get the id of the user and pet
+    const userId = request.user?.id
+    const petId = request.params.id;
 
-    //Return pet
-    response.status(200).json(pet.pets);
+    // Confirm the pet belongs to the currently logged-in user
+    try {
+        // Confirm the pet belongs to the currently logged-in user
+        const pet = isValidPet(userId, petId)
+
+        // Return the pet
+        response.json(pet);
+    } catch (error) {
+        // Log
+        console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
+
+        // Return error response
+        return response.json(generateErrorResponse("Forbidden", 403));
+    }
 });
 
 // get all pet notes
 router.get('/:id/notes', async (request: Request<{ id: number }>, response: Response) => {
-    // Get all notes that belong to the current logged-in user
-    await isValidPet(request.user?.id, request.params.id)
+    // Get the id of the user and pet
+    const userId = request.user?.id
+    const petId = request.params.id;
+    
+    // Confirm the pet belongs to the currently logged-in user
+    try {
+        await isValidPet(userId, petId)
+    } catch (error) {
+        // Log
+        console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
+
+        // Return error response
+        return response.json(generateErrorResponse("Forbidden", 403));
+    }
+
+    // Get all notes for the pet
     const notes = await prisma.notes.findMany({
         where: {
-            pet_id: request.params.id ?? -1,
-            pets: {
-                user_pets: {
-                    every: {
-                        //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
-                        user_id: request.user?.id ?? -1,
-                    },
-                },
-            }
+            pet_id: petId
         }
     })
 
-    //Return notes
-    response.status(200).json(notes);
+    // Return notes
+    response.json(notes);
 });
 
 // Export router
