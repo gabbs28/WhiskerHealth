@@ -1,26 +1,40 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client'
+import express, {Request, Response} from 'express';
+import {generateErrorResponse} from "../../../utils/errors";
+import {isValidPet} from "../pets/helper";
+import {getNoteByID} from "./helper";
 
 const router = express.Router();
 
-router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
-    // Get note by id (only if it belongs to the user)
-    const pet = await prisma.notes.findFirstOrThrow({
-        where: {
-                id: request.params.id ?? -1,
-                pets: {
-                    user_pets: {
-                        every: {
-                            //if user is present return id property if not -1(nothing gets returned without breaking, basically user that doesn't exist)
-                            user_id: request.user?.id ?? -1,
-                        },
-                    },
-                }
-            }
-    });
+// get all notes for a pet
+// see pets get.ts
 
-    //Return pet
-    response.status(200).json(pet);
+// Get note by id
+router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
+    // Look up the note to see if it belongs to a pet owned by the user
+    const note = await getNoteByID(request.params.id);
+
+    // Early out if the note doesn't exist
+    if (!note) {
+        return response.json(generateErrorResponse("Not Found", 404));
+    }
+
+    // Get the id of the user and pet
+    const userId = request.user?.id
+    const petId = note.pet_id;
+
+    // Confirm the pet belongs to the currently logged-in user
+    try {
+        await isValidPet(userId, petId)
+    } catch (error) {
+        // Log
+        console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
+
+        // Return error response
+        return response.json(generateErrorResponse("Forbidden", 403));
+    }
+    
+    //Return the note
+    response.json(note);
 });
 
 // Export router

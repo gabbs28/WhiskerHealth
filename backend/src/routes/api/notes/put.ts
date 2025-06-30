@@ -1,28 +1,45 @@
-import express, { NextFunction, Request, Response } from 'express';
-import { prisma } from '../../../database/client';
-import { notes, pets } from '../../../database/prisma-client';
-import { NoteBody, validateNote} from './helper';
-import { isValidPet } from '../pets/helper';
+import express, {Request, Response} from 'express';
+import {prisma} from '../../../database/client';
+import {NoteBody, validateNote} from './helper';
+import {isValidPet} from '../pets/helper';
+import {generateErrorResponse} from "../../../utils/errors";
 
 const router = express.Router();
 
-// create pet profile
+// update a note
 router.put(
-    '/:id', 
+    '/:id',
     validateNote,
-    async (req:Request <{id: bigint}, {}, NoteBody>, res:Response<notes>) => {
-        const data = req.body;
+    async (request: Request<{ id: number }, {}, NoteBody>, response: Response) => {
+        // Extract note body
+        const data = request.body;
 
-        await isValidPet(req.user?.id, req.params.id)
-        
+        // Get the id of the user, pet, and note
+        const userId = request.user?.id
+        const petId = data.pet_id;
+        const noteId = request.params.id;
+
+        // Confirm the pet belongs to the currently logged-in user
+        try {
+            await isValidPet(userId, petId)
+        } catch (error) {
+            // Log
+            console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
+
+            // Return error response
+            return response.json(generateErrorResponse("Forbidden", 403));
+        }
+
+        // Update the note
         const note = await prisma.notes.update({
             where: {
-                id: req.params.id ?? -1,
+                id: noteId ?? -1
             },
             data
         })
 
-        res.json(note)
+        // Return the note
+        response.json(note)
     }
 );
 
