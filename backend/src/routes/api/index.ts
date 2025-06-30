@@ -1,36 +1,24 @@
-import { restoreUser} from "../../utils/auth";
-//imports from router files
+import express, {Request, Response} from "express";
+
+import {requireAuth} from "../../utils/auth";
+
+// Import API routers
 import userRouter from './users';
 import sessionRouter from './session';
-import csurf from "csurf";
 import petsRouter from './pets'
 import notesRouter from './notes'
 
-import express, {Request, Response}  from "express";
-import { environment } from '../../config';
-const isProduction = environment === 'production';
-
 const router = express.Router()
 
-//route usage
-router.use(restoreUser);
-router.use(
-    csurf({
-        cookie: {
-            secure: isProduction,
-            sameSite: isProduction && "lax",
-            httpOnly: true
-        }
-    })
-);
+// Routes that don't require authentication or authentication is called on an endpoint-by-endpoint basis
 router.use('/session', sessionRouter);
 router.use('/users', userRouter);
-router.use('/pets', petsRouter)
-router.use('/notes', notesRouter)
-
-router.get('/restore-user', async (req:Request, res:Response) => {
+router.get('/restore-user', async (req: Request, res: Response) => {
     res.json(req.user);
 });
 
+// Routes that require authentication
+router.use('/pets', requireAuth, petsRouter)
+router.use('/notes', requireAuth, notesRouter)
 
 export default router;
