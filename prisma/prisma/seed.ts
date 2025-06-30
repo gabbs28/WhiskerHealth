@@ -1,8 +1,7 @@
 //got from prisma documentation
 //https://www.prisma.io/docs/orm/prisma-migrate/workflows/seeding
-import { PrismaClient } from '../src/prisma-client';
+import {PrismaClient} from '../src/prisma-client/client';
 import * as bcrypt from 'bcryptjs';
-import { Pet_chart_dataScalarFieldEnum, prismaVersion } from '../src/prisma-client/internal/prismaNamespace';
 
 const prisma = new PrismaClient();
 
