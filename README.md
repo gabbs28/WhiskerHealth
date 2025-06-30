@@ -1,4 +1,4 @@
-# Typescript Skeleton (change name)
+# WhiskerHealth (change name)
 
 ## Navigation
 ## Overview
