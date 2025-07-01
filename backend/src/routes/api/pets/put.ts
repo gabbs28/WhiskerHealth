@@ -1,7 +1,7 @@
-import express, {Request, Response} from 'express';
-import {prisma} from '../../../database/client';
-import {isValidPet, PetBody, validatePet} from './helper';
-import {generateErrorResponse} from "../../../utils/errors";
+import express, { Request, Response } from 'express';
+import { prisma } from '../../../database/client';
+import { isValidPet, PetBody, validatePet } from './helper';
+import { generateErrorResponse } from '../../../utils/errors';
 
 const router = express.Router();
 
@@ -11,18 +11,18 @@ router.put(
     validatePet,
     async (request: Request<{ id: number }, {}, PetBody>, response: Response) => {
         // Get the id of the user and pet
-        const userId = request.user?.id
+        const userId = request.user?.id;
         const petId = request.params.id;
 
         // Confirm the pet belongs to the currently logged-in user
         try {
-            await isValidPet(userId, petId)
+            await isValidPet(userId, petId);
         } catch (error) {
             // Log
             console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
             // Return error response
-            return response.json(generateErrorResponse("Forbidden", 403));
+            return response.json(generateErrorResponse('Forbidden', 403));
         }
 
         // Extract pet body
@@ -31,14 +31,14 @@ router.put(
         // Update the pet
         const updated = await prisma.pets.update({
             where: {
-                id: petId
+                id: petId,
             },
-            data
-        })
+            data,
+        });
 
         // Return the pet
-        response.json(updated)
-    }
+        response.json(updated);
+    },
 );
 
 // Export router

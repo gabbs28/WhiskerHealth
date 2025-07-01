@@ -1,9 +1,9 @@
-import {useEffect, useState} from "react";
-import {Outlet} from "react-router-dom";
-import {Modal, ModalProvider} from "../context/Modal";
-import {thunkAuthenticate} from "../redux/session";
-import Navigation from "../components/Navigation/Navigation";
-import {useAppDispatch} from "../redux/store.ts";
+import { useEffect, useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import { Modal, ModalProvider } from '../context/Modal';
+import { thunkAuthenticate } from '../redux/session';
+import Navigation from '../components/Navigation/Navigation';
+import { useAppDispatch } from '../redux/store.ts';
 
 export default function Layout() {
     const dispatch = useAppDispatch();
@@ -14,9 +14,9 @@ export default function Layout() {
 
     return (
         <ModalProvider>
-            <Navigation/>
-            {isLoaded && <Outlet/>}
-            <Modal/>
+            <Navigation />
+            {isLoaded && <Outlet />}
+            <Modal />
         </ModalProvider>
     );
 }

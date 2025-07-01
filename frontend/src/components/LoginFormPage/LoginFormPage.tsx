@@ -1,20 +1,20 @@
-import React, {useState} from "react";
-import {thunkLogin} from "../../redux/session";
-import {Navigate} from "react-router-dom";
-import "./LoginForm.css";
-import {useAppDispatch, useAppSelector} from "../../redux/store";
-import {ThunkError} from "../../redux/error.ts";
+import React, { useState } from 'react';
+import { thunkLogin } from '../../redux/session';
+import { Navigate } from 'react-router-dom';
+import './LoginForm.css';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { ThunkError } from '../../redux/error.ts';
 
 export default function LoginFormPage({ onSuccess }: Readonly<{ onSuccess: () => void }>) {
     const dispatch = useAppDispatch();
 
     const sessionUser = useAppSelector((state) => state.session.user);
 
-    const [credential, setCredential] = useState<string>("testz");
-    const [password, setPassword] = useState<string>("Password123!");
-    const [errors, setErrors] = useState<Record<string, string>>({credential: "", password: ""});
+    const [credential, setCredential] = useState<string>('testz');
+    const [password, setPassword] = useState<string>('Password123!');
+    const [errors, setErrors] = useState<Record<string, string>>({ credential: '', password: '' });
 
-    if (sessionUser) return <Navigate to="/" replace={true}/>;
+    if (sessionUser) return <Navigate to="/" replace={true} />;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -23,16 +23,16 @@ export default function LoginFormPage({ onSuccess }: Readonly<{ onSuccess: () =>
             thunkLogin({
                 credential,
                 password,
-            })
+            }),
         )
             .then(() => onSuccess())
-            .catch(error => {
+            .catch((error) => {
                 if (error instanceof ThunkError) {
                     setErrors(error.errors);
                 } else {
-                    setErrors({message: error.message});
+                    setErrors({ message: error.message });
                 }
-            })
+            });
     };
 
     return (

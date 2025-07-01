@@ -1,4 +1,4 @@
-import { IUser } from "./session";
+import { IUser } from './session';
 
 // ---- general types ----
 export interface CSRFHttpOptions {
@@ -9,5 +9,5 @@ export interface CSRFHttpOptions {
 
 export interface IActionCreator {
     type: string;
-    payload: IUser
+    payload: IUser;
 }

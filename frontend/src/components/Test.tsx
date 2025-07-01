@@ -49,8 +49,8 @@ export default function Test({ id }: Readonly<{ id?: number }>) {
                 error={false}
             />
             <EnumerationDropdown
-                id='fur-pattern'
-                label='Fur Pattern'
+                id="fur-pattern"
+                label="Fur Pattern"
                 values={fur_pattern_type}
                 value={furPattern}
                 onChange={(value) => {
@@ -60,6 +60,5 @@ export default function Test({ id }: Readonly<{ id?: number }>) {
                 helperText={'Please select a fur pattern.'}
             />
         </div>
-        
     );
 }

@@ -1,18 +1,18 @@
-import React, {useEffect, useRef, useState} from "react";
-import {FaUserCircle} from 'react-icons/fa';
-import {thunkLogout} from "../../redux/session";
-import OpenModalMenuItem from "./OpenModalMenuItem";
-import {useAppDispatch, useAppSelector} from "../../redux/store";
-import SignupFormPage from "../SignupFormPage";
-import LoginFormPage from "../LoginFormPage";
-import {useModal} from "../../context/Modal.tsx";
+import React, { useEffect, useRef, useState } from 'react';
+import { FaUserCircle } from 'react-icons/fa';
+import { thunkLogout } from '../../redux/session';
+import OpenModalMenuItem from './OpenModalMenuItem';
+import { useAppDispatch, useAppSelector } from '../../redux/store';
+import SignupFormPage from '../SignupFormPage';
+import LoginFormPage from '../LoginFormPage';
+import { useModal } from '../../context/Modal.tsx';
 
 export default function ProfileButton() {
     const dispatch = useAppDispatch();
     const [showMenu, setShowMenu] = useState(false);
     const user = useAppSelector((store) => store.session.user);
     const ulRef = useRef<any>();
-    const {closeModal} = useModal();
+    const { closeModal } = useModal();
 
     const toggleMenu = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
@@ -28,9 +28,9 @@ export default function ProfileButton() {
             }
         };
 
-        document.addEventListener("click", closeMenu);
+        document.addEventListener('click', closeMenu);
 
-        return () => document.removeEventListener("click", closeMenu);
+        return () => document.removeEventListener('click', closeMenu);
     }, [showMenu]);
 
     const closeMenu = () => setShowMenu(false);
@@ -38,17 +38,16 @@ export default function ProfileButton() {
     const logout = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
 
-        dispatch(thunkLogout())
-            .then(closeMenu);
+        dispatch(thunkLogout()).then(closeMenu);
     };
 
     return (
         <>
             <button onClick={(e) => toggleMenu(e)}>
-                <FaUserCircle/>
+                <FaUserCircle />
             </button>
             {showMenu && (
-                <ul className={"profile-dropdown"} ref={ulRef}>
+                <ul className={'profile-dropdown'} ref={ulRef}>
                     {user ? (
                         <>
                             <li>{user.username}</li>
@@ -62,7 +61,7 @@ export default function ProfileButton() {
                             <OpenModalMenuItem
                                 itemText="Log In"
                                 onItemClick={closeMenu}
-                                modalComponent={<LoginFormPage onSuccess={closeModal}/>}
+                                modalComponent={<LoginFormPage onSuccess={closeModal} />}
                             />
                             <OpenModalMenuItem
                                 itemText="Sign Up"

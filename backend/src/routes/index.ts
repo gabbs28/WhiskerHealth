@@ -1,9 +1,9 @@
-import express, {NextFunction, Request, Response} from "express";
-import csurf from "csurf";
+import express, { NextFunction, Request, Response } from 'express';
+import csurf from 'csurf';
 
-import apiRouter from './api'
-import {isProduction} from "../config";
-import {restoreUser} from "../utils/auth";
+import apiRouter from './api';
+import { isProduction } from '../config';
+import { restoreUser } from '../utils/auth';
 
 const router = express.Router();
 
@@ -13,18 +13,18 @@ router.use(
     csurf({
         cookie: {
             secure: isProduction,
-            sameSite: isProduction && "lax",
-            httpOnly: true
-        }
-    })
+            sameSite: isProduction && 'lax',
+            httpOnly: true,
+        },
+    }),
 );
 
 // Add CSRF restore endpoint
-router.get("/api/csrf/restore", (req: Request, res: Response, _next: NextFunction) => {
+router.get('/api/csrf/restore', (req: Request, res: Response, _next: NextFunction) => {
     const csrfToken = req.csrfToken();
-    res.cookie("XSRF-TOKEN", csrfToken);
+    res.cookie('XSRF-TOKEN', csrfToken);
     res.json({
-        'XSRF-Token': csrfToken
+        'XSRF-Token': csrfToken,
     });
 });
 
@@ -33,6 +33,5 @@ router.use(restoreUser);
 
 // Attach API endpoints
 router.use('/api', apiRouter);
-
 
 export default router;

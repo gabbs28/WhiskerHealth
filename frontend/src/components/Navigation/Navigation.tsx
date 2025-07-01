@@ -1,6 +1,6 @@
-import {NavLink} from "react-router-dom";
-import ProfileButton from "./ProfileButton";
-import "./Navigation.css";
+import { NavLink } from 'react-router-dom';
+import ProfileButton from './ProfileButton';
+import './Navigation.css';
 
 export default function Navigation() {
     return (
@@ -10,9 +10,8 @@ export default function Navigation() {
             </li>
 
             <li>
-                <ProfileButton/>
+                <ProfileButton />
             </li>
         </ul>
     );
 }
-

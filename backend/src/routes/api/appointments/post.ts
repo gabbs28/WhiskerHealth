@@ -9,21 +9,21 @@
 // const router = express.Router();
 
 // const validateAppointments = [
-//     check('info') 
+//     check('info')
 //         .exists({ checkFalsy: true })
 //         .isLength( {
 //             max: 100
 //         })
 //         .notEmpty()
 //         .withMessage('Info is required'),
-//     check('date') 
+//     check('date')
 //         .exists({ checkFalsy: true })
 //         .notEmpty()
 //         .withMessage('Date is required'),
 //     handleValidationErrors
 // ];
 
-// interface AppointmentPost extends Omit<     
+// interface AppointmentPost extends Omit<
 //     // Starting model (base prisma model)
 //     appointments,
 //     // Excluded fields
@@ -34,11 +34,11 @@
 
 // // create pet profile
 // router.post(
-//     '/', 
+//     '/',
 //     validateAppointments,
 //     async (req:Request <{}, {}, AppointmentPost>, res:Response<appointments>, next:NextFunction) => {
 //         const data = req.body;
-        
+
 //         const appointment = await prisma.$transaction( async tx => {
 //             const appointment = await tx.appointments.create({
 //                 data

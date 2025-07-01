@@ -1,4 +1,4 @@
-import {users} from "../../database/client.ts";
+import { users } from '../../database/client.ts';
 
 export interface SessionInitialState {
     user: users | null;
@@ -15,11 +15,12 @@ export interface LoginCredentials {
 
 // Fields required to create a new user
 // based on the Prisma user model excluding / adding fields
-export interface SignupUser extends Omit<
-    // Starting model (base prisma model)
-    users,
-    // Excluded fields
-    'id' | 'password_hash' | 'created_at' | 'updated_at'
-> {
+export interface SignupUser
+    extends Omit<
+        // Starting model (base prisma model)
+        users,
+        // Excluded fields
+        'id' | 'password_hash' | 'created_at' | 'updated_at'
+    > {
     password: string;
 }

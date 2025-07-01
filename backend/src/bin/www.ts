@@ -4,9 +4,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-import {prisma} from '../database/client'
-import {port} from '../config'
-import {app} from '../app'
+import { prisma } from '../database/client';
+import { port } from '../config';
+import { app } from '../app';
 
 async function main() {
     // Enable to attempt database connection on start, can be a bit slow so might not be worth it

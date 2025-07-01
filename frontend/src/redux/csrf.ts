@@ -1,9 +1,12 @@
 import Cookies from 'js-cookie';
-import {CSRFHttpOptions} from './types/redux';
+import { CSRFHttpOptions } from './types/redux';
 
-export async function csrfFetch(url: string, options: CSRFHttpOptions = {
-    method: 'GET'
-}) {
+export async function csrfFetch(
+    url: string,
+    options: CSRFHttpOptions = {
+        method: 'GET',
+    },
+) {
     // set options.method to 'GET' if there is no method
     options.method = options.method ?? 'GET';
 
@@ -21,7 +24,7 @@ export async function csrfFetch(url: string, options: CSRFHttpOptions = {
         //is why we have to check token first
         const token = Cookies.get('XSRF-TOKEN');
         if (token) {
-            options.headers['XSRF-Token'] = token
+            options.headers['XSRF-Token'] = token;
         }
     }
     // call the default window's fetch with the url and the options passed in

@@ -1,4 +1,4 @@
-import { users } from "../prisma-client/client";
+import { users } from '../prisma-client/client';
 
 // The "as const" at the end means you can't edit the object
 export const SelectSafeUser = {
@@ -14,5 +14,4 @@ export type SafeUserType = Pick<
     users,
     // Wanted fields (required model fields)
     'id' | 'first_name' | 'last_name' | 'username' | 'email'
->
-
+>;

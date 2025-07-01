@@ -1,4 +1,4 @@
-import {ErrorResponse} from "../typings/errors";
+import { ErrorResponse } from '../typings/errors';
 
 export const generateErrorResponse = (
     title: string,
