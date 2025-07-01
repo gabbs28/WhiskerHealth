@@ -13,7 +13,7 @@ export enum NoteActionTypes {
 //define action
 const getNoteAction = (note: notes): ActionCreator<NoteActionTypes, NoteActionPayload> => {
     return {
-        type: 'string',
+        type: NoteActionTypes.GET_NOTE,
         payload: note
     }
 }
