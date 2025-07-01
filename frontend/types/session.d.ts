@@ -1,4 +1,3 @@
-
 export interface SessionInitialState {
     user: null | IUser;
 }
@@ -14,10 +13,8 @@ export interface ISignUpUser {
     password: string;
 }
 
-
 export interface ICredentials {
     credential?: string;
     email?: string;
     password: string;
-
 }

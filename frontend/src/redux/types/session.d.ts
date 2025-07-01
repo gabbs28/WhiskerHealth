@@ -1,25 +1,26 @@
+import { users } from '../../database/client.ts';
 
 export interface SessionInitialState {
-    user: null | IUser;
+    user: users | null;
 }
 
-export interface IUser {
-    id: number;
-    email: string;
-}
+export type SessionActionPayload = users | null;
 
-export interface ISignUpUser{
-    email: string;
-    username: string;
+// Fields required to log in
+// credential can be either a username or an email address
+export interface LoginCredentials {
+    credential: string;
     password: string;
-    firstName: string;
-    lastName: string;
 }
 
-
-export interface ICredentials {
-    credential?: string;
-    email?: string;
+// Fields required to create a new user
+// based on the Prisma user model excluding / adding fields
+export interface SignupUser
+    extends Omit<
+        // Starting model (base prisma model)
+        users,
+        // Excluded fields
+        'id' | 'password_hash' | 'created_at' | 'updated_at'
+    > {
     password: string;
-
 }

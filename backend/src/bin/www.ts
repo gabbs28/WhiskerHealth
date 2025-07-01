@@ -1,28 +1,27 @@
 #!/usr/bin/env node
 
-
 import dotenv from 'dotenv';
+
 dotenv.config();
 
-import config from '../config'
+import { prisma } from '../database/client';
+import { port } from '../config';
+import { app } from '../app';
 
-const {port} = config;
+async function main() {
+    // Enable to attempt database connection on start, can be a bit slow so might not be worth it
+    try {
+        // Attempt to connect and perform a simple query
+        const result = await prisma.$queryRaw`SELECT 1+1 as result`;
+        console.log('✓ Successfully connected to the database');
+        console.log('Query result:', result);
+    } catch (error) {
+        console.error('✗ Unable to connect to the database:', error);
+        process.exit(1);
+    }
 
-import app from '../app'
-
-
-import db from '../db/models';
-
-// // Check the database connection before starting the app
-db.sequelize
-  .authenticate()
-  .then(() => {
-    console.log('Database connection success! Sequelize is ready to use...');
-
-//     // Start listening for connections
+    // Start listening for connections
     app.listen(port, () => console.log(`Listening on port ${port}...`));
-  })
-  .catch((err:any) => {
-    console.log('Database connection failure.');
-    console.error(err);
-  });
+}
+
+main();

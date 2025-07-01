@@ -1,0 +1,20 @@
+Prisma folder is not directly used it contains the directives to build the client (schema.prisma file) 
+also contains migrations and a seeder file
+
+I need the prisma client for the backend as well as prisma client enumerations in the frontend for my dropdowns
+
+It doesn't make sense to locate the prima folder in the backend directory as it isn't the client and
+since i need the client for both the backend and frontend. i don't want nor does it make sense to have
+duplicate directives as that would create a higher maintance burden
+
+the project isn't set up to use workspaces so I can't create a package containing the client to be imported 
+by the backend and frontewnt which would be ideal. also backend is using cjs (require / old) and the frontend is
+using esm (import / new) and I am not sure if is possible to create a dual purpose module (also not sure how
+to do that as I new to TS) 
+
+this project is setup like a monorepo without all the required instrumentation (why I trying to use nx in my 
+first attempt since i don't know how to do all that myself) as such i have the prisma folder broken out and
+have it generate a client for the backend using cjs and the frontend using esm to achive my goal of using it
+in both places.
+
+this isn't ideal but i feel that my rational behind this choice is sound.

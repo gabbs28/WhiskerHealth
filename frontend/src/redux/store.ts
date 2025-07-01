@@ -1,44 +1,62 @@
+import type { AnyAction, Middleware } from 'redux';
 import {
-  legacy_createStore as createStore,
-  applyMiddleware,
-  compose,
-  combineReducers,
-} from "redux";
-import thunk from "redux-thunk";
-import sessionReducer from "./session";
-import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+    applyMiddleware,
+    combineReducers,
+    compose,
+    legacy_createStore as createStore,
+} from 'redux';
+import { createLogger } from 'redux-logger';
+import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { SessionInitialState } from './types/session.d.ts';
+import { PetInitialState } from './types/pets.d.ts';
+import { NoteInitialState } from './types/notes.d.ts';
+import sessionReducer from './session';
+import petsReducer from './pets';
+import notesReducer from './notes';
 
-const rootReducer = combineReducers({
-  session: sessionReducer,
-});
-
-
-
-let enhancer;
-if (import.meta.env.MODE === "production") {
-  enhancer = applyMiddleware(thunk);
-} else {
-  const logger:any = (await import("redux-logger")).default;
-  const composeEnhancers =
-    window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-  enhancer = composeEnhancers(applyMiddleware(thunk, logger));
+// Combined root state type
+export interface RootState {
+    session: SessionInitialState;
+    pets: PetInitialState;
+    notes: NoteInitialState;
 }
 
-const configureStore = (preloadedState:any) => {
-  return createStore(rootReducer, preloadedState, enhancer);
-};
+const rootReducer = combineReducers<RootState>({
+    session: sessionReducer,
+    pets: petsReducer,
+    notes: notesReducer,
+});
 
-const store = configureStore({
-  rootReducer,
-  devTools: import.meta.env.VITE_NODE_ENV !== 'production'
-})
+// Redux middleware
+const middleware: Middleware[] = [thunk];
 
-export const useAppDispatch: () => typeof store.dispatch = useDispatch;
-export const useAppSelector: TypedUseSelectorHook<ReturnType<typeof store.getState>> = useSelector;
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
-export type AppDispatch = typeof store.dispatch
+// Handle Redux DevTools Extension
+const composeEnhancers =
+    (process.env.NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+    compose;
 
+// Add Redux Logger when in development
+if (import.meta.env.MODE === 'development') {
+    middleware.push(
+        createLogger({
+            collapsed: true,
+            diff: true,
+        }) as Middleware<{}, RootState, any>,
+    );
+}
+
+// Create store
+export const store = createStore(rootReducer, composeEnhancers(applyMiddleware(...middleware)));
+
+// Export types
+export type AppThunk<ReturnType = void> = ThunkAction<
+    Promise<ReturnType>,
+    RootState,
+    unknown,
+    AnyAction
+>;
+export type AppDispatch = ThunkDispatch<RootState, unknown, AnyAction>;
+export const useAppDispatch: () => AppDispatch = useDispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export default store;
-// export default configureStore;

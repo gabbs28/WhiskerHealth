@@ -1,0 +1,26 @@
+# https://prettier.io/docs/
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+
+# Environment files
+.env
+.env.*
+
+# IDE/Editor directories
+.idea
+.vscode
+
+# OS files
+.DS_Store
+
+# Package files
+package-lock.json
+
+# Prisma
+backend/src/database/prisma-client/**
+frontend/src/database/**
+prisma/**
+!prisma/prisma/seed.ts

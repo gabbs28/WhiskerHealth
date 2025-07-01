@@ -1,0 +1,13 @@
+{
+  "name": "database",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts",
+    "gaby": "ts-node prisma/seed.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.4"
+  }
+}

@@ -1,20 +1,10 @@
-import { NextFunction, Request, Response } from "express";
-import { CredError, InvalidCredentialError, LoginError, NoResourceError } from "../../errors/customErrors";
-
-const express = require('express');
-const { Op } = require('sequelize');
-const bcrypt = require('bcryptjs');
-
-const { setTokenCookie, restoreUser } = require('../../utils/auth');
-
-
-import db from '../../db/models';
-import { LoginUser } from "../../typings/data";
-const {User} = db
-
-
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
+import express, { Request, Response } from 'express';
+import { prisma } from '../../database/client';
+import bcrypt from 'bcryptjs';
+import { createSafeUser, setTokenCookie } from '../../utils/auth';
+import { check } from 'express-validator';
+import { handleValidationErrors } from '../../utils/validation';
+import { generateErrorResponse } from '../../utils/errors';
 
 const router = express.Router();
 
@@ -23,94 +13,60 @@ const validateLogin = [
         .exists({ checkFalsy: true })
         .notEmpty()
         .withMessage('Email or username is required'),
-    check('password')
-        .exists({ checkFalsy: true })
-        .withMessage('Password is required'),
-    handleValidationErrors
+    check('password').exists({ checkFalsy: true }).withMessage('Password is required'),
+    handleValidationErrors,
 ];
 
+const invalid = generateErrorResponse('Invalid Credentials', 401, {
+    credential: 'The provided credentials were invalid.',
+    password: 'The provided credentials were invalid.',
+});
+
 // Log in
-router.post(
-    '/',
-    validateLogin,
-    async (req:Request, res:Response, next:NextFunction) => {
-        const { credential, password } = req.body;
-            if(credential && password){
-                try{
-                let user = await User.unscoped().findOne({
-                    where: {
-                        [Op.or]: {
-                            username: credential,
-                            email: credential,
-                        },
-                    }
-                });
+router.post('/', validateLogin, async (req: Request, res: Response) => {
+    const { credential, password } = req.body;
 
-                if (!user || !bcrypt.compareSync(password, user.hashedPassword.toString())) {
-                    console.log("?")
-                    const err = new LoginError('Invalid credentials', 401);
-                    err.status = 401;
-                    throw err
-                }
+    try {
+        // Check if the username and password are valid.
+        const user = await prisma.users.findFirst({
+            where: {
+                OR: [{ username: credential }, { email: credential }],
+            },
+        });
 
-
-                await setTokenCookie(res, user);
-
-                let loginUser = await user.getSafeUser()
-                console.log(loginUser, "user!")
-                return res.json({
-                    ...loginUser
-                });
-
-            } catch (e){
-                return next(e);
-            }
-        } else {
-            try {
-                const errors:CredError = {}
-
-                if(!credential && !password){
-
-                    errors.credential = "Email or username is required";
-                    errors.password = "Password is required";
-                    throw new InvalidCredentialError("Please pass in a valid username/email and password", errors)
-
-                } else if (!credential && password){
-
-                    errors.credential = "Email or username is required";
-                    throw new InvalidCredentialError("Please pass in a valid username/email", errors)
-
-                } else if(credential && !password){
-                    errors.password = "Password is required";
-                    throw new InvalidCredentialError("Please pass in a valid password", errors)
-                } else {
-                    errors.credential = "Server Error processing your credential";
-                    errors.password = "Server Error processing your password";
-                    throw new InvalidCredentialError("There was an error submitting your form. Please Try Again", errors, 500)
-                }
-            } catch (err){
-                return next(err)
-            }
+        if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+            // Return error
+            return res.json(invalid);
         }
-    }
-);
 
-//get the current user
-router.get('/', restoreUser, async(req:any, res:Response) => {
-    if(req.user){
-        const user = await req.user.getSafeUser();
-        res.json({user})
+        // Set session cookie
+        setTokenCookie(res, user);
+
+        // Return user
+        return res.json(createSafeUser(user));
+    } catch (error) {
+        // Log
+        console.log(`failed to find user with credential ${credential}: ${error}`);
+
+        // Return error
+        return res.json(invalid);
+    }
+});
+
+// Get current user
+router.get('/', async (req: Request, res: Response) => {
+    const { user } = req;
+    if (user) {
+        return res.json(createSafeUser(user));
     } else {
-        res.json({"user": null})
+        return res.json({ user: null });
     }
-})
-
+});
 
 // Log out
-router.delete('/', (_req:Request, res:Response) => {
+router.delete('/', (_req: Request, res: Response) => {
     res.clearCookie('token');
     return res.json({ message: 'success' });
 });
 
-
-export = router;
+export default router;

@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+
+    label {
+        /* Add label styles here */
+    }
+
+    select {
+        /* Add select styles here */
+
+        option {
+            /* Add option styles here */
+        }
+    }
+
+    /* Might want to make this a global style */
+    .helper {
+        /* Add helper styles here */
+    }
+
+    /* Might want to make this a global style */
+    .error {
+        color: red;
+    }
+}
