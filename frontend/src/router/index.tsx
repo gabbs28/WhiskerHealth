@@ -3,6 +3,7 @@ import LoginFormPage from '../components/LoginFormPage';
 import SignupFormPage from '../components/SignupFormPage';
 import Layout from './Layout';
 import Test from '../components/Test.tsx';
+import Dashboard from '../components/Dashboard';
 
 export const router = createBrowserRouter([
     {
@@ -10,7 +11,11 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: '/',
-                element: <h1>Welcome!</h1>,
+                element: <Dashboard />,
+            },
+            {
+                path: 'pet/:id',
+                element: <h1>Pet Detail</h1>,
             },
             {
                 path: 'login',

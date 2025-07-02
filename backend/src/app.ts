@@ -14,6 +14,9 @@ import routes from './routes';
 import { isProduction } from './config';
 import { generateErrorResponse } from './utils/errors';
 
+// Frontend location
+const frontend = [__dirname, '..', '..', 'frontend', 'dist'];
+
 export const app = express();
 
 app.use(morgan('dev'));
@@ -32,26 +35,15 @@ app.use(
     }),
 );
 
-//apply middleware to allow for usage of static react-vite from build
-app.use(express.static(path.join(__dirname, 'react-vite')));
-app.use(express.static(path.join(__dirname, 'react-vite/assets/favicon.ico')));
+// apply middleware to allow for usage of static react-vite from build
+app.use(express.static(path.join(...frontend)));
 
 //api routes
 app.use(routes);
 
-//send the React build as a static file
-app.get('/', (_request: Request, response: Response) => {
-    response.sendFile(path.join(__dirname, 'index.html'));
-});
-
-//send the React build as a static file
-app.get('/favicon.ico', (_request, response, _next) => {
-    response.sendFile(path.join(__dirname, '/favicon.ico'));
-});
-
 app.get(/^(?!\/?api).*/, (request: Request, response: Response) => {
     response.cookie('XSRF-TOKEN', request.csrfToken());
-    response.sendFile(path.join(__dirname, 'react-app', 'index.html'));
+    response.sendFile(path.join(...frontend, 'index.html'));
 });
 
 // 404 error handler middleware

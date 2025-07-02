@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+
+    .add {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px;
+        flex-direction: column;
+        cursor: pointer;
+        background-color: inherit;
+        color: inherit;
+        border: none;
+        font-weight: inherit;
+    }
+}

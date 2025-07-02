@@ -55,14 +55,15 @@ export function EnumerationDropdown<T extends string>({
     const options = Object.entries(values);
 
     // Handlers
-    const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const change = (event: React.ChangeEvent<HTMLSelectElement>) => {
         onChange(event.target.value as T);
     };
+
     // Remember each enumeration is in its own div
     return (
         <div className={styles.container}>
             <label htmlFor={id}>{label}</label>
-            <select id={id} value={value ?? ''} onChange={handleChange} required={required}>
+            <select id={id} value={value ?? ''} onChange={change} required={required}>
                 <option value="" disabled={true}>
                     Select {label}
                 </option>
@@ -73,7 +74,7 @@ export function EnumerationDropdown<T extends string>({
                 ))}
             </select>
             {helperText && <p className={styles.helper}>{helperText}</p>}
-            {error && <p className={styles.error}>{errorMessage}</p>}
+            {error && <p className="error">{errorMessage}</p>}
         </div>
     );
 }

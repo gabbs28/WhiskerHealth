@@ -46,8 +46,9 @@ export const getPetData = (id: number): AppThunk => {
             const data = await response.json();
 
             // If the "error" field is set, return errors
+            //?? Nullish coalescing operator, https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Nullish_coalescing
             if (data?.error) {
-                throw new ThunkError('Get Pet Failure', data.errors ?? {});
+                throw new ThunkError('Get Pets Failure', data.errors ?? {});
             }
 
             // Update state
@@ -89,7 +90,7 @@ export const getPetNotesData = (id: number): AppThunk => {
 
             // If the "error" field is set, return errors
             if (data?.error) {
-                throw new ThunkError('Get Pet Notes Failure', data.errors ?? {});
+                throw new ThunkError('Get Pets Notes Failure', data.errors ?? {});
             }
 
             // Update state
@@ -98,46 +99,56 @@ export const getPetNotesData = (id: number): AppThunk => {
     };
 };
 
-export const postPet = async (pet: PetsBody) => {
-    return async () => {
-        // Attempt to create a pet
-        const response = await csrfFetch(`/api/pets`, {
-            method: 'POST',
-            body: JSON.stringify(pet),
-        });
+export const postPet = async (pet: PetsBody): Promise<pets> => {
+    // Attempt to create a pet
+    const response = await csrfFetch(`/api/pets`, {
+        method: 'POST',
+        body: JSON.stringify(pet),
+    });
 
-        // If a response is returned, validate it
-        if (response.ok) {
-            // Parse response as JSON
-            const data = await response.json();
+    // If a response is returned, validate it
+    if (response.ok) {
+        // Parse response as JSON
+        const data = await response.json();
 
-            // If the "error" field is set, return errors
-            if (data?.error) {
-                throw new ThunkError('Create Pet Failure', data.errors ?? {});
-            }
+        // If the "error" field is set, return errors
+        if (data?.error) {
+            throw new ThunkError('Create Pets Failure', data.errors ?? {});
         }
-    };
+
+        // Return response
+        return data;
+    } else {
+        throw new ThunkError('Update Pets Failure', {
+            message: 'An unknown error occurred. Please try again later.',
+        });
+    }
 };
 
-export const putPet = async (id: number, pet: PetsBody) => {
-    return async () => {
-        // Attempt to update a pet
-        const response = await csrfFetch(`/api/pets/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(pet),
-        });
+export const putPet = async (id: bigint, pet: PetsBody): Promise<pets> => {
+    // Attempt to update a pet
+    const response = await csrfFetch(`/api/pets/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(pet),
+    });
 
-        // If a response is returned, validate it
-        if (response.ok) {
-            // Parse response as JSON
-            const data = await response.json();
+    // If a response is returned, validate it
+    if (response.ok) {
+        // Parse response as JSON
+        const data = await response.json();
 
-            // If the "error" field is set, return errors
-            if (data?.error) {
-                throw new ThunkError('Update Pet Failure', data.errors ?? {});
-            }
+        // If the "error" field is set, return errors
+        if (data?.error) {
+            throw new ThunkError('Update Pets Failure', data.errors ?? {});
         }
-    };
+
+        // Return response
+        return data;
+    } else {
+        throw new ThunkError('Update Pets Failure', {
+            message: 'An unknown error occurred. Please try again later.',
+        });
+    }
 };
 
 export const deletePet = async (id: number) => {
@@ -154,7 +165,7 @@ export const deletePet = async (id: number) => {
 
             // If the "error" field is set, return errors
             if (data?.error) {
-                throw new ThunkError('Delete Pet Failure', data.errors ?? {});
+                throw new ThunkError('Delete Pets Failure', data.errors ?? {});
             }
         }
     };

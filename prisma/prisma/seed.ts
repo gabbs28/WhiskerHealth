@@ -28,10 +28,9 @@ async function main() {
             color: 'Orange',
             hair_length: 'Short_hair',
             fur_pattern: 'Bi_Color',
-            allergies: ['Allergic to fish and chicken'],
+            allergies: ['Fish', 'Chicken'],
             microchip: '123456',
-            medical_condition: ['Hyperthyroid, IBS, High Blood Pressure, Food Allergies'],
-
+            medical_condition: ['Food Allergies', 'High Blood Pressure', 'Hyperthyroid', 'IBS'],
         }
     })
 

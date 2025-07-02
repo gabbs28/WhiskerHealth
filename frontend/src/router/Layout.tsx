@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Modal, ModalProvider } from '../context/Modal';
 import { thunkAuthenticate } from '../redux/session';
-import Navigation from '../components/Navigation/Navigation';
 import { useAppDispatch } from '../redux/store.ts';
+import Header from '../components/Header';
 
 export default function Layout() {
     const dispatch = useAppDispatch();
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
     useEffect(() => {
         dispatch(thunkAuthenticate()).then(() => setIsLoaded(true));
     }, [dispatch]);
 
     return (
         <ModalProvider>
-            <Navigation />
+            <Header />
             {isLoaded && <Outlet />}
             <Modal />
         </ModalProvider>

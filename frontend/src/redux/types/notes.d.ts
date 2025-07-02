@@ -1,4 +1,4 @@
-import { notes } from '../../database';
+import { notes } from '../../database/client';
 
 export interface NoteInitialState {
     note: notes | null;
@@ -11,5 +11,5 @@ export interface NotesBody
         // Starting model (base prisma model)
         notes,
         // Excluded fields
-        'created_at' | 'updated_at'
+        'id' | 'created_at' | 'updated_at'
     > {}
