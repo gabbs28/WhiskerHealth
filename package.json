@@ -11,7 +11,9 @@
         "install:frontend": "npm --prefix frontend install frontend",
         "start:backend": "npm run --prefix backend start:development",
         "start:frontend": "npm run --prefix frontend dev",
-        "build": "npm run --prefix backend build && npm run --prefix frontend build"
+        "build": "npm run --prefix backend build && npm run --prefix frontend build",
+        "build:backend": "npm run --prefix backend build ",
+        "build:frontend": "npm run --prefix frontend build"
     },
     "dependencies": {
         "@prisma/client": "^6.9.0",

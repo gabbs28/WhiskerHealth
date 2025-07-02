@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { prisma } from '../../../database/client';
-import { NoteBody, validateNote } from './helper';
+import { getNoteByID, NoteBody, validateNote } from './helper';
 import { isValidPet } from '../pets/helper';
 import { generateErrorResponse } from '../../../utils/errors';
 
@@ -11,13 +11,17 @@ router.put(
     '/:id',
     validateNote,
     async (request: Request<{ id: number }, {}, NoteBody>, response: Response) => {
-        // Extract note body
-        const data = request.body;
+        // Look up the note to see if it belongs to a pet owned by the user
+        const note = await getNoteByID(request.params.id);
 
-        // Get the id of the user, pet, and note
+        // Early out if the note doesn't exist
+        if (!note) {
+            return response.json(generateErrorResponse('Not Found', 404));
+        }
+
+        // Get the id of the user and pet
         const userId = request.user?.id;
-        const petId = data.pet_id;
-        const noteId = request.params.id;
+        const petId = note.pet_id;
 
         // Confirm the pet belongs to the currently logged-in user
         try {
@@ -30,16 +34,22 @@ router.put(
             return response.json(generateErrorResponse('Forbidden', 403));
         }
 
+        // Extract note body
+        const data = request.body;
+
+        // Ensure pet_id of the posted body doesn't change
+        data.pet_id = petId;
+
         // Update the note
-        const note = await prisma.notes.update({
+        const updated = await prisma.notes.update({
             where: {
-                id: noteId ?? -1,
+                id: note.id,
             },
             data,
         });
 
         // Return the note
-        response.json(note);
+        response.json(updated);
     },
 );
 

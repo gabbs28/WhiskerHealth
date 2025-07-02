@@ -5,49 +5,49 @@ import { prisma } from '../../../database/client';
 
 export const validatePet = [
     body('name')
-        .exists({ checkFalsy: true })
-        .isLength({
-            max: 100,
-        })
+        .trim()
         .notEmpty()
-        .withMessage('Name is required'),
-    body('breed').exists({ checkFalsy: true }).notEmpty().withMessage('Breed is required'),
+        .isLength({ max: 100 })
+        .withMessage('Name is required and must be less than 100 characters'),
+
+    body('breed').notEmpty().withMessage('Breed is required'),
+
     body('birthday')
-        .exists({ checkFalsy: true })
-        .isDate()
         .notEmpty()
-        .withMessage('Birthday is required'),
-    body('gender').exists({ checkFalsy: true }).notEmpty().withMessage('Gender is required'),
-    body('sterilized')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Sterilized is required'),
+        // isISO8601() is for date
+        // https://en.wikipedia.org/wiki/ISO_8601
+        .isISO8601()
+        .toDate()
+        .withMessage('Birthday is required and must be a valid date'),
+
+    body('gender').notEmpty().withMessage('Gender is required'),
+
+    body('sterilized').notEmpty().isBoolean().withMessage('Sterilized must be true or false'),
+
     body('weight')
-        .exists({ checkFalsy: true })
-        .isDecimal()
         .notEmpty()
-        .withMessage('Weight is required'),
-    body('color').exists({ checkFalsy: true }).notEmpty().withMessage('Color is required'),
-    body('hair_length')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Hair Length is required'),
-    body('fur_pattern')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Fur Pattern is required'),
-    body('allergies').exists({ checkFalsy: true }).notEmpty().withMessage('Allergies is required'),
+        .isFloat({ min: 0 })
+        .withMessage('Weight is required and must be a positive number'),
+
+    body('color').notEmpty().withMessage('Color is required'),
+
+    body('hair_length').notEmpty().withMessage('Hair Length is required'),
+
+    body('fur_pattern').notEmpty().withMessage('Fur Pattern is required'),
+
+    body('allergies').notEmpty().isArray().withMessage('Allergies must be an array'),
+
     body('microchip')
-        .exists({ checkFalsy: true })
-        .isLength({
-            max: 100,
-        })
+        .trim()
         .notEmpty()
-        .withMessage('Microchip is required'),
+        .isLength({ max: 100 })
+        .withMessage('Microchip is required and must be less than 100 characters'),
+
     body('medical_condition')
-        .exists({ checkFalsy: true })
         .notEmpty()
-        .withMessage('Medical Condition is required'),
+        .isArray()
+        .withMessage('Medical Condition must be an array'),
+
     handleValidationErrors,
 ];
 

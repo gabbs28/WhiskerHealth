@@ -1,4 +1,4 @@
-import { users } from '../../database/client.ts';
+import { users } from '../../database/client';
 
 export interface SessionInitialState {
     user: users | null;

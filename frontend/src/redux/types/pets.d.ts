@@ -1,4 +1,4 @@
-import { notes, pets } from '../../database';
+import { notes, pets } from '../../database/client';
 
 export interface PetInitialState {
     pet: pets | null;
@@ -13,5 +13,5 @@ export interface PetsBody
         // Starting model (base prisma model)
         pets,
         // Excluded fields
-        'created_at' | 'updated_at'
+        'id' | 'created_at' | 'updated_at'
     > {}

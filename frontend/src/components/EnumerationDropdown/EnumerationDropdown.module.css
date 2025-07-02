@@ -4,14 +4,14 @@
     align-items: flex-start;
     gap: 8px;
 
-    label {
+    :is(label) {
         /* Add label styles here */
     }
 
-    select {
+    :is(select) {
         /* Add select styles here */
 
-        option {
+        :is(option) {
             /* Add option styles here */
         }
     }
@@ -19,10 +19,5 @@
     /* Might want to make this a global style */
     .helper {
         /* Add helper styles here */
-    }
-
-    /* Might want to make this a global style */
-    .error {
-        color: red;
     }
 }
