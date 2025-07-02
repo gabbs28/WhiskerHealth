@@ -15,6 +15,7 @@ import { isProduction } from './config';
 import { generateErrorResponse } from './utils/errors';
 
 // Frontend location
+//https://nodejs.org/docs/latest/api/modules.html#__dirname
 const frontend = [__dirname, '..', '..', 'frontend', 'dist'];
 
 export const app = express();
