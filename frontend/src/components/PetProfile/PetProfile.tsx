@@ -27,7 +27,7 @@ export function PetProfile() {
         <div className={styles.container}>
             <div className={styles.grid}>
                 <div className={styles.box}>
-                    <h2 className={styles.header}> Profile Overview</h2>
+                    <h2 className={styles.header}> Profile Overview <button className={styles.button} >Edit</button></h2>
                 </div>
                 <div className={styles.box}>
                     <h2 className={styles.header}> Notes <button className={styles.button} >+</button></h2>
