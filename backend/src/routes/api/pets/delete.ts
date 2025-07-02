@@ -36,7 +36,7 @@ router.delete('/:id', async (request: Request<{ id: number }>, response: Respons
     }
 
     // Success
-    response.json({ message: 'Pets Deleted' });
+    response.json({ message: 'Pet Deleted' });
 });
 
 // Export router
