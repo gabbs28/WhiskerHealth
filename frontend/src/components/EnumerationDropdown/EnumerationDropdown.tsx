@@ -9,7 +9,7 @@ interface EnumerationDropdownProperties<T extends string> {
     // Text for label element
     label: string;
 
-    // Every possible options for the select from enumeration list
+    // Every possible option for the select from an enumeration list
     values: { [key: string]: T };
 
     // Current value selected
@@ -49,7 +49,6 @@ export function EnumerationDropdown<T extends string>({
     errorMessage,
     required = true,
     formatter = (value: T) => value.replace(/_/g, ' '),
-    //
 }: Readonly<EnumerationDropdownProperties<T>>) {
     // Get possible values from the enumeration
     const options = Object.entries(values);

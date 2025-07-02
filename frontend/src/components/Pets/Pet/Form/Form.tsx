@@ -120,9 +120,7 @@ export function Form({ pet }: Readonly<FormProperties>) {
                 } else {
                     setErrors({ message: error.message });
                 }
-                console.log('stephen');
             });
-        console.log('Gabby');
     };
 
     return (
@@ -294,8 +292,8 @@ export function Form({ pet }: Readonly<FormProperties>) {
                     <button type="button" onClick={closeModal} disabled={isSubmitting}>
                         Cancel
                     </button>
-                    <button type="submit">
-                        {isSubmitting ? 'Saving...' : pet ? 'Update Pet' : 'Add Pet'}
+                    <button type="submit" disabled={isSubmitting}>
+                        {pet ? 'Update Pet' : 'Add Pet'}
                     </button>
                 </div>
             </form>

@@ -18,6 +18,10 @@ export const router = createBrowserRouter([
                 element: <h1>Pet Detail</h1>,
             },
             {
+                path: 'pet/:id/edit',
+                element: <h1>Pet Edit</h1>,
+            },
+            {
                 path: 'login',
                 element: <LoginFormPage onSuccess={() => <Navigate to="/" replace />} />,
             },

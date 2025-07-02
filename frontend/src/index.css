@@ -55,6 +55,7 @@ html,
 body {
     background-color: rgb(252, 247, 239);
 }
+
 .error {
     color: red;
 }
