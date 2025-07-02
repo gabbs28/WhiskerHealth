@@ -4,6 +4,7 @@ import SignupFormPage from '../components/SignupFormPage';
 import Layout from './Layout';
 import Test from '../components/Test.tsx';
 import Dashboard from '../components/Dashboard';
+import { PetProfile } from '../components/PetProfile/PetProfile.tsx';
 
 export const router = createBrowserRouter([
     {
@@ -15,7 +16,7 @@ export const router = createBrowserRouter([
             },
             {
                 path: 'pet/:id',
-                element: <h1>Pet Detail</h1>,
+                element: <PetProfile />,
             },
             {
                 path: 'pet/:id/edit',

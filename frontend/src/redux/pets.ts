@@ -35,7 +35,7 @@ const getPetNotesAction = (notes: notes[]): ActionCreator<PetActionTypes, PetAct
 };
 
 //define thunks
-export const getPetData = (id: number): AppThunk => {
+export const getPetData = (id: bigint): AppThunk => {
     return async (dispatch: AppDispatch) => {
         // Attempt to get a specific pet for the current user
         const response = await csrfFetch(`/api/pets/${id}`);
