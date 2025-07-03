@@ -39,7 +39,7 @@ router.get('/:id', async (request: Request<{ id: number }>, response: Response) 
     // Confirm the pet belongs to the currently logged-in user
     try {
         // Confirm the pet belongs to the currently logged-in user
-        const pet = isValidPet(userId, petId);
+        const pet = await isValidPet(userId, petId);
 
         // Return the pet
         response.json(pet);

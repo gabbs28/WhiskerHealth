@@ -26,7 +26,7 @@ export function Pets({ pets }: Readonly<PetProperties>) {
             {pets?.map((pet) => (
                 <Pet key={pet.id} pet={pet} />
             ))}
-            <button className={styles.add} onClick={(event) => add(event)}>
+            <button className={styles.add} onClick={add}>
                 <FaPlusCircle />
                 <span>Add Pet</span>
             </button>

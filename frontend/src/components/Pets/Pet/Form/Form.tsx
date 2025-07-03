@@ -22,10 +22,12 @@ interface FormProperties {
 export function Form({ pet }: Readonly<FormProperties>) {
     const navigate = useNavigate();
     const { closeModal } = useModal();
-
+    console.log('Does this print')
+    console.log(pet)
     const [name, setName] = useState<string>(pet?.name ?? '');
     const [breed, setBreed] = useState<breed_type | undefined>(pet?.breed);
     const [birthday, setBirthday] = useState<Date | undefined>(pet?.birthday ?? new Date());
+    console.log("TYPEOF HERE", typeof birthday)
     const [gender, setGender] = useState<gender_type | undefined>(pet?.gender);
     const [sterilized, setSterilized] = useState<boolean>(pet?.sterilized ?? false);
     const [weight, setWeight] = useState<number>(pet?.weight ?? 0);
