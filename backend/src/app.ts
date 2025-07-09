@@ -16,6 +16,7 @@ import routes from './routes/index.js';
 
 import { isProduction } from './config/index.js';
 import { generateErrorResponse } from './utils/errors.js';
+import csurf from 'csurf';
 
 JSON.stringify = JSONStringify;
 JSON.parse = JSONParse;
@@ -45,16 +46,28 @@ app.use(
     }),
 );
 
-// apply middleware to allow for usage of static react-vite from build
+// Enable cross-site forgery protection
+app.use(
+    // the library hasn't been updated in over five years, see replacement csrf-csrf
+    // https://www.npmjs.com/package/csrf-csrf
+    csurf({
+        cookie: {
+            secure: isProduction,
+            sameSite: isProduction && 'lax',
+            httpOnly: true,
+        },
+    }),
+);
+
+// Serve React application
+app.get('/', (request: Request, response: Response) => {
+    response.cookie('XSRF-TOKEN', request.csrfToken());
+    response.sendFile(path.join(...frontend, 'index.html'));
+});
 app.use(express.static(path.join(...frontend)));
 
 //api routes
 app.use(routes);
-
-app.get(/^(?!\/?api).*/, (request: Request, response: Response) => {
-    response.cookie('XSRF-TOKEN', request.csrfToken());
-    response.sendFile(path.join(...frontend, 'index.html'));
-});
 
 // 404 error handler middleware
 app.use((_request: Request, response: Response) => {
