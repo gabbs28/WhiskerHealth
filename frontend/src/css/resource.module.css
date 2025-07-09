@@ -1,0 +1,61 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-medium);
+    padding: var(--spacing-medium);
+    flex-direction: column;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--color-inherit);
+
+    &.small {
+        /* Local override placeholder; prevents "undefined" from showing up in CSS */
+    }
+
+    &.large {
+        width: 100%;
+        cursor: default;
+
+        .header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: left;
+            padding: var(--spacing-medium);
+            gap: var(--spacing-small);
+            width: 100%;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--spacing-large);
+            padding-bottom: var(--spacing-medium);
+
+            & > div {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-small);
+
+                .name {
+                    font-weight: var(--font-weight-bold);
+                }
+
+                .value {
+                    color: var(--color-text-primary);
+                }
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-large);
+
+            .button {
+                /* Local override placeholder; prevents "undefined" from showing up in CSS */
+            }
+        }
+    }
+}

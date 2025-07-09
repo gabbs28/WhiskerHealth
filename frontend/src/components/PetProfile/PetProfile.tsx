@@ -1,52 +1,56 @@
 import styles from './PetProfile.module.css';
+import grid from '../../css/grid.module.css';
 import { useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
-import { useModal } from '../../context/Modal';
-import { getPetData } from '../../redux/pets';
-import { getNoteData } from '../../redux/notes';
-import { useParams } from 'react-router-dom';
-import { GridLoader } from 'react-spinners';
-import Form from '../Pets/Pet/Form';
+import { useAppDispatch, useAppSelector } from '../../redux/store.ts';
+import { getPet, getPetNotes } from '../../redux/pets.ts';
+import { useNavigate, useParams } from 'react-router-dom';
+import Pet from '../Pets/Pet/index.ts';
+import Notes from '../Notes/index.ts';
+import { Loader } from '../common/Loader.tsx';
 
 export function PetProfile() {
-    const { setModalContent, closeModal } = useModal();
-
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
-    const params = useParams<{ id: string }>();
+    const { id } = useParams<{ id: string }>();
 
-    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
-    const petId = BigInt(params.id ?? -1);
-
+    const user = useAppSelector((state) => state.session.user);
     const pet = useAppSelector((state) => state.pets.pet);
-    const notes = useAppSelector((state) => state.notes.note);
-        console.log(pet)
+    const notes = useAppSelector((state) => state.pets.notes);
 
     const [loaded, setLoaded] = useState<boolean>(false);
 
+    //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt
+    const petId = BigInt(id ?? -1);
+
     useEffect(() => {
-        Promise.all([dispatch(getPetData(petId))]).then(() => setLoaded(true));
-    }, [dispatch]);
-
-    const overview = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-            // Prevent default action
-            event.preventDefault();
-
-            if (pet) {
-                // Show the add pet form
-                setModalContent(<Form pet={pet}/>);
-            }
-    
-        };
+        // Redirect if logged out
+        if (!user) {
+            navigate('/', { replace: true });
+        } else {
+            Promise.all([dispatch(getPet(petId)), dispatch(getPetNotes(petId))]).then(() =>
+                setLoaded(true),
+            );
+        }
+    }, [dispatch, navigate, user, petId]);
 
     return (
         <div className={styles.container}>
-            <div className={styles.grid}>
-                <a className={styles.box} onClick={overview}>
-                    <h2 className={styles.header}>Profile Overview</h2>
-                </a>
-                <div className={styles.box}>
-                    <h2 className={styles.header}>Notes</h2>
+            <div className={`${styles.navigation}`}>
+                <button onClick={() => navigate('/')}>← Back</button>
+            </div>
+            <div className={`${grid.container} ${styles.grid}`}>
+                <div className={`${grid.box} ${styles.box} pet`}>
+                    <h2 className={`${grid.header} ${styles.header}`}>Pet</h2>
+                    <div className={`${grid.content} ${styles.content}`}>
+                        {loaded && pet ? <Pet pet={pet} mode="large" /> : <Loader />}
+                    </div>
+                </div>
+                <div className={`${grid.box} ${styles.box} notes`}>
+                    <h2 className={`${grid.header} ${styles.header}`}>Notes</h2>
+                    <div className={`${grid.content} ${styles.content}`}>
+                        {loaded ? <Notes petId={petId} notes={notes} /> : <Loader />}
+                    </div>
                 </div>
             </div>
         </div>

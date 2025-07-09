@@ -1,18 +1,37 @@
-# React/Vite Authenticate Me
+# Frontend
 
-This is the frontend for the Flask/React project. Note that it has no styling
-applied. You can copy the **.css** files from your Authenticate Me project into
-the corresponding locations in the **react-vite** folder to give your project a
-unique look.
+## Usage
 
-To run it:
+The [package.json](package.json) contains the following helper script to facilitate running the `frontend`.
 
-1. `cd` into the **react-vite** folder.
-2. Run `npm install` to install dependencies.
-3. Launch it with `npm run dev`.
-4. In your browser, navigate to [`localhost:5173`].
+### dev
 
-Don't forget to run `npm run build` before merging your work to your production
-branch!
+Run the `frontend` in development mode. Watches code for changes and will reload.
 
-[`localhost:5173`]: http://localhost:5173/
+```npm
+npm run dev
+```
+
+### build
+
+Use `vite` to transpile the code for efficient use in `production`.
+
+```npm
+npm run built
+```
+
+### lint
+
+Use `lint` to inspect files for errors.
+
+```npm
+npm run lint
+```
+
+### preview
+
+Run the `frontend` in `production` mode.
+
+```npm
+npm run preview
+```

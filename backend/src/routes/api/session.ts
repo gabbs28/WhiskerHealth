@@ -1,10 +1,10 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../database/client';
+import express, { type Request, type Response } from 'express';
+import { prisma } from '../../database/client.js';
 import bcrypt from 'bcryptjs';
-import { createSafeUser, setTokenCookie } from '../../utils/auth';
+import { createSafeUser, setTokenCookie } from '../../utils/auth.js';
 import { check } from 'express-validator';
-import { handleValidationErrors } from '../../utils/validation';
-import { generateErrorResponse } from '../../utils/errors';
+import { handleValidationErrors } from '../../utils/validation.js';
+import { generateErrorResponse } from '../../utils/errors.js';
 
 const router = express.Router();
 
@@ -23,8 +23,8 @@ const invalid = generateErrorResponse('Invalid Credentials', 401, {
 });
 
 // Log in
-router.post('/', validateLogin, async (req: Request, res: Response) => {
-    const { credential, password } = req.body;
+router.post('/', validateLogin, async (request: Request, response: Response) => {
+    const { credential, password } = request.body;
 
     try {
         // Check if the username and password are valid.
@@ -36,37 +36,41 @@ router.post('/', validateLogin, async (req: Request, res: Response) => {
 
         if (!user || !bcrypt.compareSync(password, user.password_hash)) {
             // Return error
-            return res.json(invalid);
+            response.json(invalid);
+
+            // Early out
+            return;
         }
 
         // Set session cookie
-        setTokenCookie(res, user);
+        setTokenCookie(response, user);
 
         // Return user
-        return res.json(createSafeUser(user));
+        response.json(createSafeUser(user));
     } catch (error) {
         // Log
         console.log(`failed to find user with credential ${credential}: ${error}`);
 
         // Return error
-        return res.json(invalid);
+        response.json(invalid);
     }
 });
 
 // Get current user
-router.get('/', async (req: Request, res: Response) => {
-    const { user } = req;
+router.get('/', async (request: Request, response: Response) => {
+    const { user } = request;
+
     if (user) {
-        return res.json(createSafeUser(user));
+        response.json(createSafeUser(user));
     } else {
-        return res.json({ user: null });
+        response.json({ user: null });
     }
 });
 
 // Log out
-router.delete('/', (_req: Request, res: Response) => {
-    res.clearCookie('token');
-    return res.json({ message: 'success' });
+router.delete('/', (_request: Request, response: Response) => {
+    response.clearCookie('token');
+    response.json({ message: 'success' });
 });
 
 export default router;

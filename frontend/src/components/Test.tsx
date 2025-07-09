@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../redux/store';
-import { getAllPetsData, getPetData } from '../redux/pets';
+import { getPet, getPets } from '../redux/pets';
 import EnumerationDropdown from './EnumerationDropdown';
 import { breed_type, fur_pattern_type } from '../database/enums.ts';
+import NoteForm from './Notes/Note/Form';
+import PetForm from './Pets/Pet/Form';
+import Pet from './Pets/Pet';
 
-export default function Test({ id }: Readonly<{ id?: number }>) {
+export default function Test({ id = 4n }: Readonly<{ id?: bigint }>) {
     const dispatch = useAppDispatch();
 
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -20,10 +23,10 @@ export default function Test({ id }: Readonly<{ id?: number }>) {
     useEffect(() => {
         const promises = [];
 
-        promises.push(dispatch(getAllPetsData()));
+        promises.push(dispatch(getPets()));
 
         if (id) {
-            promises.push(dispatch(getPetData(id)));
+            promises.push(dispatch(getPet(id)));
         }
 
         Promise.all(promises).then(() => setIsLoaded(true));
@@ -36,6 +39,7 @@ export default function Test({ id }: Readonly<{ id?: number }>) {
     return (
         <div>
             <h1>Test</h1>
+            {pet && <Pet pet={pet} mode="large" />}
             <EnumerationDropdown
                 id="breed"
                 label="Breed"
@@ -59,6 +63,8 @@ export default function Test({ id }: Readonly<{ id?: number }>) {
                 }}
                 helperText={'Please select a fur pattern.'}
             />
+            {pet && <PetForm pet={pet}></PetForm>}
+            <NoteForm petId={5n} />
         </div>
     );
 }

@@ -1,15 +1,28 @@
 import { csrfFetch } from './csrf';
-import { ActionCreator } from './types/redux';
 
 import { AppDispatch, AppThunk } from './store.ts';
 import { ThunkError } from './error.ts';
-import { users } from '../database/client.ts';
 import {
     LoginCredentials,
-    SessionActionPayload,
+    RemoveUserSessionAction,
+    SafeUserType,
+    SessionActions,
     SessionInitialState,
+    SetUserSessionAction,
     SignupUser,
 } from './types/session';
+import z from 'zod';
+
+//schema
+//https://zod.dev/api
+//this is not linked to the model directly and will need to change as the model changes
+export const UserSchema = z.object({
+    id: z.coerce.bigint(),
+    first_name: z.string().max(100),
+    last_name: z.string().max(100),
+    email: z.string().email().max(100),
+    username: z.string().max(100),
+});
 
 //define types
 export enum SessionActionTypes {
@@ -18,12 +31,12 @@ export enum SessionActionTypes {
 }
 
 //define actions
-const setUser = (user: users): ActionCreator<SessionActionTypes, users> => ({
+const setUserAction = (user: SafeUserType): SetUserSessionAction => ({
     type: SessionActionTypes.SET_USER,
     payload: user,
 });
 
-const removeUser = (): ActionCreator<SessionActionTypes, null> => ({
+const removeUserAction = (): RemoveUserSessionAction => ({
     type: SessionActionTypes.REMOVE_USER,
     payload: null,
 });
@@ -38,13 +51,35 @@ export const thunkAuthenticate = (): AppThunk => async (dispatch: AppDispatch) =
         // Parse response as JSON
         const data = await response.json();
 
-        // If the "error" field is set, abort
-        if (data?.error) {
+        // When no session exists, this will return null so we can early out
+        if (data === null) {
             return;
         }
 
-        // Update state
-        dispatch(setUser(data));
+        // If the "error" field is set, abort
+        if (data?.error) {
+            // Log
+            console.error(data.error);
+
+            // Abort
+            return;
+        }
+
+        // Convert to users
+        const parsed = UserSchema.safeParse(data);
+
+        // If conversion was a success
+        if (parsed.success) {
+            // Update state
+            dispatch(setUserAction(parsed.data));
+        } else {
+            // Unable to parse data
+            throw new ThunkError('Restore User Failure', { message: parsed.error?.format() });
+        }
+    } else {
+        throw new ThunkError('Login Failure', {
+            message: 'An unknown error occurred. Please try again later.',
+        });
     }
 };
 
@@ -67,8 +102,17 @@ export const thunkLogin =
                 throw new ThunkError('Login Failure', data.errors ?? {});
             }
 
-            // Update state
-            dispatch(setUser(data));
+            // Convert to users
+            const parsed = UserSchema.safeParse(data);
+
+            // If conversion was a success
+            if (parsed.success) {
+                // Update state
+                dispatch(setUserAction(parsed.data));
+            } else {
+                // Unable to parse data
+                throw new ThunkError('Login Failure', { message: parsed.error?.format() });
+            }
         } else {
             throw new ThunkError('Login Failure', {
                 message: 'An unknown error occurred. Please try again later.',
@@ -95,8 +139,17 @@ export const thunkSignup =
                 throw new ThunkError('Signup Failure', data.errors ?? {});
             }
 
-            // Update state
-            dispatch(setUser(data));
+            // Convert to users
+            const parsed = UserSchema.safeParse(data);
+
+            // If conversion was a success
+            if (parsed.success) {
+                // Update state
+                dispatch(setUserAction(parsed.data));
+            } else {
+                // Unable to parse data
+                throw new ThunkError('Signup Failure', { message: parsed.error?.format() });
+            }
         } else {
             throw new ThunkError('Signup Failure', {
                 message: 'An unknown error occurred. Please try again later.',
@@ -121,7 +174,7 @@ export const thunkLogout = (): AppThunk => async (dispatch: AppDispatch) => {
         }
 
         // Update state
-        dispatch(removeUser());
+        dispatch(removeUserAction());
     } else {
         throw new ThunkError('Logout Failure', {
             message: 'An unknown error occurred. Please try again later.',
@@ -133,10 +186,7 @@ export const thunkLogout = (): AppThunk => async (dispatch: AppDispatch) => {
 const initialState: SessionInitialState = { user: null };
 
 //define reducer
-function sessionReducer(
-    state = initialState,
-    action: ActionCreator<SessionActionTypes, SessionActionPayload>,
-): SessionInitialState {
+function sessionReducer(state = initialState, action: SessionActions): SessionInitialState {
     switch (action.type) {
         case SessionActionTypes.SET_USER:
             return { ...state, user: action.payload };

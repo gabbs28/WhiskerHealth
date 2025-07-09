@@ -1,0 +1,146 @@
+.container {
+    min-width: 500px;
+    max-width: 800px;
+    min-height: inherit;
+    max-height: 75vh;
+    height: auto;
+    margin: 0 auto;
+    overflow-y: auto;
+    background-color: var(--background-color-primary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color-primary);
+    box-shadow: var(--shadow-color-primary);
+    padding: var(--spacing-large);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    /* Webkit Scrollbar */
+    &::-webkit-scrollbar {
+        width: var(--spacing-small);
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--background-color-secondary);
+        border-radius: var(--spacing-small);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--border-color-secondary);
+        border-radius: var(--spacing-small);
+    }
+
+    /* Firefox Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color-secondary) var(--background-color-secondary);
+
+    h1 {
+        text-align: center;
+        margin-bottom: var(--spacing-large);
+        color: var(--color-primary);
+        width: 100%;
+    }
+
+    .form {
+        width: 100%;
+
+        .row {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: var(--spacing-large);
+            width: 100%;
+
+            label {
+                font-weight: var(--font-weight-bold);
+                margin-bottom: var(--spacing-small);
+                color: var(--color-primary);
+                text-align: left;
+            }
+
+            input[type='text'],
+            input[type='password'],
+            input[type='email'],
+            input[type='number'],
+            input[type='date'],
+            textarea,
+            select {
+                padding: var(--spacing-small) var(--spacing-medium);
+                border: 1px solid var(--border-color-secondary);
+                border-radius: 6px;
+                font-size: 1em;
+                width: 100%;
+                background-color: var(--background-color-primary);
+                transition: border-color var(--transition-duration) var(--transition-easing);
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--border-color-secondary);
+                    box-shadow: 0 0 0 2px var(--shadow-color-focus);
+                }
+            }
+
+            input[type='checkbox'] {
+                margin-top: var(--spacing-small);
+                width: 20px;
+                height: 20px;
+            }
+
+            textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+            .select-wrapper {
+                position: relative;
+                width: 100%;
+
+                &::after {
+                    content: '▼';
+                    position: absolute;
+                    right: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    pointer-events: none;
+                    color: currentColor;
+                }
+            }
+
+            select {
+                appearance: none;
+                padding-right: 40px;
+                width: 100%;
+            }
+
+            .error {
+                color: var(--color-text-error);
+                font-size: 0.875em;
+                margin-top: var(--spacing-small);
+            }
+
+            .helper {
+                color: var(--color-text-secondary);
+                font-size: 0.875em;
+                margin-top: var(--spacing-small);
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-medium);
+            margin-top: var(--spacing-large);
+
+            .button {
+                min-width: 120px;
+                padding: var(--spacing-small) var(--spacing-large);
+                border-radius: 6px;
+                font-weight: var(--font-weight-bold);
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+}

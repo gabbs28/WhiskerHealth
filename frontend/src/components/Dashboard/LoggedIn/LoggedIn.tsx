@@ -1,9 +1,10 @@
 import styles from './LoggedIn.module.css';
+import grid from '../../../css/grid.module.css';
 import { useAppDispatch, useAppSelector } from '../../../redux/store.ts';
 import { useEffect, useState } from 'react';
-import { getAllPetsData } from '../../../redux/pets.ts';
+import { getPets } from '../../../redux/pets.ts';
 import Pets from '../../Pets';
-import { GridLoader } from 'react-spinners';
+import { Loader } from '../../common/Loader.tsx';
 
 export function LoggedIn() {
     const dispatch = useAppDispatch();
@@ -13,28 +14,34 @@ export function LoggedIn() {
     const [loaded, setLoaded] = useState<boolean>(false);
 
     useEffect(() => {
-        Promise.all([dispatch(getAllPetsData())]).then(() => setLoaded(true));
+        Promise.all([dispatch(getPets())]).then(() => setLoaded(true));
     }, [dispatch]);
 
     return (
-        <div className={styles.container}>
-            <div className={styles.box}>
-                <h2 className={styles.header}>Pets</h2>
-                <div className={styles.content}>
-                    {loaded ? <Pets pets={pets} /> : <GridLoader />}
+        <div className={`${grid.container} ${styles.container}`}>
+            <div className={`${grid.box} ${styles.box}`}>
+                <h2 className={`${grid.header} ${styles.header}`}>Pets</h2>
+                <div className={`${grid.content} ${styles.content}`}>
+                    {loaded ? <Pets pets={pets} /> : <Loader />}
                 </div>
             </div>
-            <div className={styles.box}>
-                <h2 className={styles.header}>Upcoming Care</h2>
-                <div className={styles.content}>{loaded ? <p>Coming Soon</p> : <GridLoader />}</div>
+            <div className={`${grid.box} ${styles.box}`}>
+                <h2 className={`${grid.header} ${styles.header}`}>Upcoming Care</h2>
+                <div className={`${grid.content} ${styles.content}`}>
+                    {loaded ? <p>Coming Soon</p> : <Loader />}
+                </div>
             </div>
-            <div className={styles.box}>
-                <h2 className={styles.header}>Quick Links</h2>
-                <div className={styles.content}>{loaded ? <p>Coming Soon</p> : <GridLoader />}</div>
+            <div className={`${grid.box} ${styles.box}`}>
+                <h2 className={`${grid.header} ${styles.header}`}>Quick Links</h2>
+                <div className={`${grid.content} ${styles.content}`}>
+                    {loaded ? <p>Coming Soon</p> : <Loader />}
+                </div>
             </div>
-            <div className={styles.box}>
-                <h2 className={styles.header}>Member Forum</h2>
-                <div className={styles.content}>{loaded ? <p>Coming Soon</p> : <GridLoader />}</div>
+            <div className={`${grid.box} ${styles.box}`}>
+                <h2 className={`${grid.header} ${styles.header}`}>Member Forum</h2>
+                <div className={`${grid.content} ${styles.content}`}>
+                    {loaded ? <p>Coming Soon</p> : <Loader />}
+                </div>
             </div>
         </div>
     );

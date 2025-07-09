@@ -1,76 +1,50 @@
-/* Modern CSS Reset */
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+@import url('css/reset.css');
+@import url('css/button.css');
 
-html,
-body {
-    height: 100%;
-    width: 100%;
-}
+/* Global Styles */
+:root {
+    background-color: rgb(252, 247, 239);
 
-body {
-    line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
+    /* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_cascading_variables/Using_CSS_custom_properties */
+    /* Spacing */
+    --max-width: 1200px;
 
-img,
-picture,
-video,
-canvas,
-svg {
-    display: block;
-    max-width: 100%;
-}
+    --spacing-small: 8px;
+    --spacing-medium: 10px;
+    --spacing-large: 20px;
 
-input,
-button,
-textarea,
-select {
-    font: inherit;
-}
+    /* Colors */
+    --color-inherit: inherit;
+    --color-text-primary: #333333;
+    --color-text-secondary: #666666;
+    --color-text-error: #dc3545;
 
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    overflow-wrap: break-word;
+    --color-button-primary: #fff;
+    --color-button-secondary: #000;
+
+    --background-color-primary: #ffffff;
+    --background-color-secondary: #f1f3f5;
+
+    --background-color-button-primary: #c0b39a;
+    --background-color-button-secondary: #c0b39a;
+
+    --border-color-primary: #cccccc;
+    --border-color-secondary: #aaaaaa;
+
+    --shadow-color-primary: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-color-focus: 0 0 0 2px rgba(0, 123, 255, 0.5);
+
+    /* Font */
+    --font-weight-bold: bold;
+
+    /* Transition */
+    --transition-duration: 0.2s;
+    --transition-easing: ease;
 }
 
 #root {
     height: 100%;
     width: 100%;
-}
-
-/* Global Styles */
-html,
-body {
-    background-color: rgb(252, 247, 239);
-}
-
-.error {
-    color: red;
-}
-
-button {
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 1px solid #cccccc;
-    background-color: #c0b39a;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-weight: bold;
-    color: white;
-
-    &.secondary {
-        color: black;
-    }
+    display: flex;
+    flex-direction: column;
 }

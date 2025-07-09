@@ -1,3 +1,3 @@
-import { PetProfile } from './PetProfile';
+import { PetProfile } from './PetProfile.tsx';
 
 export default PetProfile;

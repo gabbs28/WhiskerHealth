@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { PetsBody } from '../../../../redux/types/pets';
 import { pets } from '../../../../database/client.ts';
 import styles from './Form.module.css';
+import form from '../../../../css/form.module.css';
 import EnumerationDropdown from '../../../EnumerationDropdown';
 import {
     breed_type,
@@ -14,38 +15,35 @@ import { postPet, putPet } from '../../../../redux/pets.ts';
 import { useNavigate } from 'react-router-dom';
 import { useModal } from '../../../../context/Modal.tsx';
 import { ThunkError } from '../../../../redux/error.ts';
+import { useAppDispatch } from '../../../../redux/store.ts';
 
 interface FormProperties {
     pet?: pets;
 }
 
 export function Form({ pet }: Readonly<FormProperties>) {
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { closeModal } = useModal();
-    console.log('Does this print')
-    console.log(pet)
+    const { setIsLoading, closeModal } = useModal();
+
     const [name, setName] = useState<string>(pet?.name ?? '');
     const [breed, setBreed] = useState<breed_type | undefined>(pet?.breed);
-    const [birthday, setBirthday] = useState<Date | undefined>(pet?.birthday ?? new Date());
-    console.log("TYPEOF HERE", typeof birthday)
+    const [birthday, setBirthday] = useState<Date>(pet?.birthday ?? new Date());
     const [gender, setGender] = useState<gender_type | undefined>(pet?.gender);
     const [sterilized, setSterilized] = useState<boolean>(pet?.sterilized ?? false);
     const [weight, setWeight] = useState<number>(pet?.weight ?? 0);
     const [color, setColor] = useState<color_type | undefined>(pet?.color);
     const [hair, setHair] = useState<hair_length_type | undefined>(pet?.hair_length);
     const [fur, setFur] = useState<fur_pattern_type | undefined>(pet?.fur_pattern);
-    const [allergies, setAllergies] = useState<string[]>(pet?.allergies ?? []);
+    const [allergies, setAllergies] = useState<string>(pet?.allergies?.join('\n') ?? '');
     const [microchip, setMicrochip] = useState<string>(pet?.microchip ?? '');
-    const [conditions, setConditions] = useState<string[]>(pet?.medical_condition ?? []);
+    const [conditions, setConditions] = useState<string>(pet?.medical_condition?.join('\n') ?? '');
+
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const submit = async (event: React.FormEvent) => {
         // Prevent default action
         event.preventDefault();
-
-        // Remove?
-        setIsSubmitting(true);
 
         // Clear previous errors
         setErrors({});
@@ -88,48 +86,64 @@ export function Form({ pet }: Readonly<FormProperties>) {
         // Check to see if there are any errors
         if (Object.keys(errors).length > 0) {
             // Update errors
-            setErrors(errors);
-
-            // Remove?
-            setIsSubmitting(false);
-
-            // Abort
-            return;
+            return setErrors(errors);
         }
+
+        // Set loading
+        setIsLoading(true);
 
         // Create data
         const data: PetsBody = {
             name: name.trim(),
             breed: breed!,
-            birthday: birthday!,
+            birthday: birthday,
             gender: gender!,
             sterilized,
             weight,
             color: color!,
             hair_length: hair!,
             fur_pattern: fur!,
-            allergies,
+            allergies: allergies
+                .split('\n')
+                .map((allergy: string) => allergy.trim())
+                .filter((allergy) => allergy),
             microchip: microchip.trim(),
-            medical_condition: conditions,
+            medical_condition: conditions
+                .split('\n')
+                .map((allergy: string) => allergy.trim())
+                .filter((allergy) => allergy),
         };
 
         // Send request
-        (pet ? putPet(pet.id, data) : postPet(data))
-            .then((pet) => navigate(`/pets/${pet.id}`))
+        (pet ? dispatch(putPet(pet.id, data)) : postPet(data))
+            .then((instance) => {
+                if (pet) {
+                    // Close modal
+                    closeModal();
+                } else {
+                    // Load pet
+                    navigate(`/pet/${instance.id}`);
+                }
+            })
             .catch((error) => {
+                // Update errors
                 if (error instanceof ThunkError) {
                     setErrors(error.errors);
                 } else {
                     setErrors({ message: error.message });
                 }
+            })
+            .finally(() => {
+                // Clear loading
+                setIsLoading(false);
             });
     };
 
     return (
-        <>
+        <div className={`${form.container} ${styles.container}`}>
             <h1>{pet ? 'Update Pet' : 'Create Pet'}</h1>
-            <form className={styles.form} onSubmit={submit}>
-                <div className={styles.field}>
+            <form className={`${form.form} ${styles.form}`} onSubmit={submit}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="name">Name</label>
                     <input
                         id="name"
@@ -139,47 +153,51 @@ export function Form({ pet }: Readonly<FormProperties>) {
                         onChange={(event) => setName(event.target.value)}
                         required
                     />
-                    {errors.name && <p className="error">{errors.name}</p>}
+                    {errors.name && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.name}</p>
+                    )}
                 </div>
 
-                <EnumerationDropdown
-                    id="breed"
-                    label="Breed"
-                    values={breed_type}
-                    value={breed}
-                    onChange={setBreed}
-                    required
-                    error={!!errors.breed}
-                    errorMessage={errors.breed}
-                />
+                <div className={`${form.row} ${styles.row}`}>
+                    <EnumerationDropdown
+                        id="breed"
+                        label="Breed"
+                        values={breed_type}
+                        value={breed}
+                        onChange={setBreed}
+                        error={!!errors.breed}
+                        errorMessage={errors.breed}
+                    />
+                </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="birthday">Birthday</label>
                     <input
                         id="birthday"
                         name="birthday"
                         type="date"
-                        value={birthday?.toISOString().split('T')[0]}
-                        onChange={(event) =>
-                            setBirthday(new Date(event.target.value + 'T00:00:00'))
-                        }
+                        value={birthday.toISOString().split('T')[0]}
+                        onChange={(event) => setBirthday(new Date(event.target.value))}
                         required
                     />
-                    {errors.birthday && <p className="error">{errors.birthday}</p>}
+                    {errors.birthday && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.birthday}</p>
+                    )}
                 </div>
 
-                <EnumerationDropdown
-                    id="gender"
-                    label="Gender"
-                    values={gender_type}
-                    value={gender}
-                    onChange={setGender}
-                    required
-                    error={!!errors.gender}
-                    errorMessage={errors.gender}
-                />
+                <div className={`${form.row} ${styles.row}`}>
+                    <EnumerationDropdown
+                        id="gender"
+                        label="Gender"
+                        values={gender_type}
+                        value={gender}
+                        onChange={setGender}
+                        error={!!errors.gender}
+                        errorMessage={errors.gender}
+                    />
+                </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="sterilized">Sterilized</label>
                     <input
                         id="sterilized"
@@ -188,10 +206,12 @@ export function Form({ pet }: Readonly<FormProperties>) {
                         checked={sterilized}
                         onChange={(event) => setSterilized(event.target.checked)}
                     />
-                    {errors.sterilized && <p className="error">{errors.sterilized}</p>}
+                    {errors.sterilized && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.sterilized}</p>
+                    )}
                 </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="weight">Weight (lbs)</label>
                     <input
                         id="weight"
@@ -203,43 +223,48 @@ export function Form({ pet }: Readonly<FormProperties>) {
                         onChange={(event) => setWeight(parseFloat(event.target.value) || 0)}
                         required
                     />
-                    {errors.weight && <p className="error">{errors.weight}</p>}
+                    {errors.weight && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.weight}</p>
+                    )}
                 </div>
 
-                <EnumerationDropdown
-                    id="color"
-                    label="Color"
-                    values={color_type}
-                    value={color}
-                    onChange={setColor}
-                    required
-                    error={!!errors.color}
-                    errorMessage={errors.color}
-                />
+                <div className={`${form.row} ${styles.row}`}>
+                    <EnumerationDropdown
+                        id="color"
+                        label="Color"
+                        values={color_type}
+                        value={color}
+                        onChange={setColor}
+                        error={!!errors.color}
+                        errorMessage={errors.color}
+                    />
+                </div>
 
-                <EnumerationDropdown
-                    id="hair_length"
-                    label="Hair Length"
-                    values={hair_length_type}
-                    value={hair}
-                    onChange={setHair}
-                    required
-                    error={!!errors.hair}
-                    errorMessage={errors.hair}
-                />
+                <div className={`${form.row} ${styles.row}`}>
+                    <EnumerationDropdown
+                        id="hair_length"
+                        label="Hair Length"
+                        values={hair_length_type}
+                        value={hair}
+                        onChange={setHair}
+                        error={!!errors.hair}
+                        errorMessage={errors.hair}
+                    />
+                </div>
 
-                <EnumerationDropdown
-                    id="fur_pattern"
-                    label="Fur Pattern"
-                    values={fur_pattern_type}
-                    value={fur}
-                    onChange={setFur}
-                    required
-                    error={!!errors.fur}
-                    errorMessage={errors.fur}
-                />
+                <div className={`${form.row} ${styles.row}`}>
+                    <EnumerationDropdown
+                        id="fur_pattern"
+                        label="Fur Pattern"
+                        values={fur_pattern_type}
+                        value={fur}
+                        onChange={setFur}
+                        error={!!errors.fur}
+                        errorMessage={errors.fur}
+                    />
+                </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="microchip">Microchip Number</label>
                     <input
                         id="microchip"
@@ -249,56 +274,58 @@ export function Form({ pet }: Readonly<FormProperties>) {
                         onChange={(event) => setMicrochip(event.target.value)}
                         required
                     />
-                    {errors.microchip && <p className="error">{errors.microchip}</p>}
+                    {errors.microchip && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.microchip}</p>
+                    )}
                 </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="allergies">Allergies</label>
                     <textarea
                         id="allergies"
                         name="allergies"
-                        value={allergies.join(', ')}
-                        onChange={(event) =>
-                            setAllergies(
-                                event.target.value
-                                    .split(',')
-                                    .map((s) => s.trim())
-                                    .filter(Boolean),
-                            )
-                        }
-                        placeholder="Enter allergies separated by commas"
+                        value={allergies}
+                        onChange={(event) => setAllergies(event.target.value)}
+                        placeholder="Enter allergies separated by newlines"
                     />
-                    {errors.allergies && <p className="error">{errors.allergies}</p>}
+                    {errors.allergies && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.allergies}</p>
+                    )}
                 </div>
 
-                <div className={styles.field}>
+                <div className={`${form.row} ${styles.row}`}>
                     <label htmlFor="conditions">Medical Conditions</label>
                     <textarea
                         id="conditions"
                         name="conditions"
-                        value={conditions.join(', ')}
-                        onChange={(event) =>
-                            setConditions(
-                                event.target.value
-                                    .split(',')
-                                    .map((s) => s.trim())
-                                    .filter(Boolean),
-                            )
-                        }
-                        placeholder="Enter medical conditions separated by commas"
+                        value={conditions}
+                        onChange={(event) => setConditions(event.target.value)}
+                        placeholder="Enter medical conditions separated by newlines"
                     />
-                    {errors.conditions && <p className="error">{errors.conditions}</p>}
+                    {errors.conditions && (
+                        <p className={`${form.error} ${styles.error}`}>{errors.conditions}</p>
+                    )}
                 </div>
 
-                <div className={styles.buttons}>
-                    <button type="button" onClick={closeModal} disabled={isSubmitting}>
+                {errors.message && (
+                    <div className={`${form.row} ${styles.row}`}>
+                        <p className={`${form.error} ${styles.error}`}>{errors.message}</p>
+                    </div>
+                )}
+
+                <div className={`${form.buttons} ${styles.buttons}`}>
+                    <button
+                        type="button"
+                        className={`${form.button} ${styles.button}`}
+                        onClick={closeModal}
+                    >
                         Cancel
                     </button>
-                    <button type="submit" disabled={isSubmitting}>
+                    <button type="submit" className={`${form.button} ${styles.button}`}>
                         {pet ? 'Update Pet' : 'Add Pet'}
                     </button>
                 </div>
             </form>
-        </>
+        </div>
     );
 }

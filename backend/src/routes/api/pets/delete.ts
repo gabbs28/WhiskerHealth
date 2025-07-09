@@ -1,15 +1,16 @@
-import express, { Request, Response } from 'express';
-import { prisma, Prisma } from '../../../database/client';
-import { isValidPet } from './helper';
-import { generateErrorResponse } from '../../../utils/errors';
+import express, { type Request, type Response } from 'express';
+import { prisma, Prisma } from '../../../database/client.js';
+import { isValidPet } from './helper.js';
+import { generateErrorResponse } from '../../../utils/errors.js';
+import { toBigIntID } from '../helper.js';
 
 const router = express.Router();
 
 // get pets
-router.delete('/:id', async (request: Request<{ id: number }>, response: Response) => {
+router.delete('/:id', async (request: Request<{ id: string }>, response: Response) => {
     // Get the id of the user and pet
     const userId = request.user?.id;
-    const petId = request.params.id;
+    const petId = toBigIntID(request.params.id);
 
     // Confirm the pet belongs to the currently logged-in user
     try {
@@ -19,7 +20,10 @@ router.delete('/:id', async (request: Request<{ id: number }>, response: Respons
         console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
         // Return error response
-        return response.json(generateErrorResponse('Forbidden', 403));
+        response.json(generateErrorResponse('Forbidden', 403));
+
+        // Early out
+        return;
     }
 
     // Get all pets that belong to the current logged-in user

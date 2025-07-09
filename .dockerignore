@@ -1,7 +1,35 @@
-node_modules
-.env
-.DS_Store
-dev.db
-dist
-tests
-.git
+# https://docs.docker.com/build/concepts/context/#dockerignore-files
+# You can prepend lines with a * to exclude everything
+# You can prepend lines with a ! (exclamation mark) to make exceptions to exclusions.
+
+# Ignore everything by default
+*
+
+# Global
+!package.json
+!package-lock.json
+
+# Prisma folder restrictions - exclude everything except specified files and folders
+!prisma/package-lock.json
+!prisma/package.json
+!prisma/prisma/
+
+# Backend folder restrictions - exclude everything except specified files
+!backend/package-lock.json
+!backend/package.json
+!backend/src/
+!backend/tsconfig.json
+
+# Frontend folder restrictions - exclude everything except specified files
+!frontend/eslint.config.js
+!frontend/index.html
+!frontend/package-lock.json
+!frontend/package.json
+!frontend/public
+!frontend/src
+!frontend/tsconfig.app.json
+!frontend/tsconfig.config.json
+!frontend/tsconfig.json
+!frontend/tsconfig.node.json
+!frontend/types
+!frontend/vite.config.ts

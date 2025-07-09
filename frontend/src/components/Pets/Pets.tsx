@@ -1,4 +1,6 @@
 import styles from './Pets.module.css';
+import row from '../../css/row.module.css';
+
 import { pets } from '../../database/client.ts';
 import { FaPlusCircle } from 'react-icons/fa';
 import { Pet } from './Pet/Pet.tsx';
@@ -6,12 +8,12 @@ import React from 'react';
 import { useModal } from '../../context/Modal.tsx';
 import Form from './Pet/Form';
 
-interface PetProperties {
+interface PetsProperties {
     pets: pets[];
 }
 
-export function Pets({ pets }: Readonly<PetProperties>) {
-    const { setModalContent, closeModal } = useModal();
+export function Pets({ pets }: Readonly<PetsProperties>) {
+    const { setModalContent } = useModal();
 
     const add = (event: React.MouseEvent<HTMLButtonElement>) => {
         // Prevent default action
@@ -22,11 +24,11 @@ export function Pets({ pets }: Readonly<PetProperties>) {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={`${row.container} ${styles.container}`}>
             {pets?.map((pet) => (
                 <Pet key={pet.id} pet={pet} />
             ))}
-            <button className={styles.add} onClick={add}>
+            <button className={`${row.add} ${styles.add} invisible`} onClick={add}>
                 <FaPlusCircle />
                 <span>Add Pet</span>
             </button>

@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client';
-import { isValidPet, PetBody, validatePet } from './helper';
-import { generateErrorResponse } from '../../../utils/errors';
+import express, { type Request, type Response } from 'express';
+import { prisma } from '../../../database/client.js';
+import { isValidPet, type PetBody, validatePet } from './helper.js';
+import { generateErrorResponse } from '../../../utils/errors.js';
+import { toBigIntID } from '../helper.js';
 
 const router = express.Router();
 
@@ -9,10 +10,10 @@ const router = express.Router();
 router.put(
     '/:id',
     validatePet,
-    async (request: Request<{ id: number }, {}, PetBody>, response: Response) => {
+    async (request: Request<{ id: string }, {}, PetBody>, response: Response) => {
         // Get the id of the user and pet
         const userId = request.user?.id;
-        const petId = request.params.id;
+        const petId = toBigIntID(request.params.id);
 
         // Confirm the pet belongs to the currently logged-in user
         try {
@@ -22,7 +23,10 @@ router.put(
             console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
             // Return error response
-            return response.json(generateErrorResponse('Forbidden', 403));
+            response.json(generateErrorResponse('Forbidden', 403));
+
+            // Early out
+            return;
         }
 
         // Extract pet body

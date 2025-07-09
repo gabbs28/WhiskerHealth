@@ -1,61 +1,48 @@
 import { body } from 'express-validator';
-import { handleValidationErrors } from '../../../utils/validation';
-import { notes } from '../../../database/prisma-client/client';
-import { prisma } from '../../../database/client';
+import { handleValidationErrors } from '../../../utils/validation.js';
+import type { notes } from '../../../database/prisma-client/client.js';
+import { prisma } from '../../../database/client.js';
+import { toBigIntID } from '../helper.js';
 
 export const validateNote = [
-    body('date').exists({ checkFalsy: true }).notEmpty().withMessage('Date is required'),
+    body('date')
+        .notEmpty()
+        .isISO8601()
+        .toDate()
+        .withMessage('Date is required and must be a valid date'),
+
     body('title')
-        .exists({ checkFalsy: true })
-        .isLength({
-            max: 100,
-        })
+        .trim()
         .notEmpty()
-        .withMessage('Title is required'),
-    body('pain_level').exists({ checkFalsy: true }).notEmpty().withMessage('Pain is required'),
-    body('fatigue_level')
-        .exists({ checkFalsy: true })
-        .isDate()
-        .notEmpty()
-        .withMessage('Fatigue Level is required'),
-    body('activity_level')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Activity Level is required'),
-    body('appetite_level')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Appetite Level is required'),
-    body('water_intake')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Water Intake is required'),
-    body('sleep_level')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Sleep Level is required'),
+        .isLength({ max: 100 })
+        .withMessage('Title is required and must be less than 100 characters'),
+
+    body('pain_level').notEmpty().withMessage('Pain level is required'),
+
+    body('fatigue_level').notEmpty().withMessage('Fatigue level is required'),
+
+    body('activity_level').notEmpty().withMessage('Activity level is required'),
+
+    body('appetite_level').notEmpty().withMessage('Appetite level is required'),
+
+    body('water_intake').notEmpty().withMessage('Water intake is required'),
+
+    body('sleep_level').notEmpty().withMessage('Sleep level is required'),
+
     body('regular_meds')
-        .exists({ checkFalsy: true })
         .notEmpty()
-        .withMessage('Regular Meds is required'),
+        .isBoolean()
+        .withMessage('Regular medications must be true or false'),
+
     body('relief_meds')
-        .exists({ checkFalsy: true })
         .notEmpty()
-        .withMessage('Relief Meds is required'),
-    body('fecal_score')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Fecal Score is required'),
-    body('fecal_color')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Fecal Color is required'),
-    body('urine_color')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Urine Color is required'),
-    body('notes').exists({ checkFalsy: true }).notEmpty().withMessage('Notes is required'),
-    body('pet_id').isInt().notEmpty(),
+        .isBoolean()
+        .withMessage('Relief medications must be true or false'),
+
+    body('notes').trim().notEmpty().withMessage('Notes are required'),
+
+    body('pet_id').notEmpty().isInt().withMessage('Pet ID is required and must be an integer'),
+
     handleValidationErrors,
 ];
 
@@ -67,10 +54,12 @@ export interface NoteBody
         'id' | 'created_at' | 'updated_at'
     > {}
 
-export const getNoteByID = async (id: number | bigint = -1): Promise<notes | null> => {
+export const getNoteByID = async (
+    id: bigint | string | undefined | null,
+): Promise<notes | null> => {
     return prisma.notes.findUnique({
         where: {
-            id,
+            id: toBigIntID(id),
         },
     });
 };
