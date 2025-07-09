@@ -26,7 +26,7 @@ WORKDIR /var/www/
 # https://docs.docker.com/reference/dockerfile/#copy
 # Copy application with respect to .dockerignore
 COPY . .
-
+RUN printenv
 # https://docs.docker.com/reference/dockerfile/#run
 # https://unix.stackexchange.com/questions/56444/how-do-i-set-an-environment-variable-on-the-command-line-and-have-it-appear-in-c
 # Install, build, and then remove non runtime dependencies
