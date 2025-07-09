@@ -11,13 +11,27 @@ RUN apk --no-cache add \
 
 # https://docs.docker.com/reference/dockerfile/#env
 # Set environment variables with default values that can be overridden at runtime
-ENV NODE_ENV=production
-ENV PORT=8000
-ENV JWT_EXPIRES_IN=604800
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+ARG PORT=8000
+ENV PORT=${PORT}
+
+ARG JWT_EXPIRES_IN=604800
+ENV JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
 
 # Set environment variables with no default values
-# ENV JWT_SECRET=
-# DATABASE_URL=
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
+
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+ARG SHADOW_DATABASE_URL
+ENV SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL}
+
+# Debug ENV
+RUN printenv
 
 # https://docs.docker.com/reference/dockerfile/#workdir
 # Set working directory to "/var/www"
@@ -26,7 +40,7 @@ WORKDIR /var/www/
 # https://docs.docker.com/reference/dockerfile/#copy
 # Copy application with respect to .dockerignore
 COPY . .
-RUN printenv
+
 # https://docs.docker.com/reference/dockerfile/#run
 # https://unix.stackexchange.com/questions/56444/how-do-i-set-an-environment-variable-on-the-command-line-and-have-it-appear-in-c
 # Install, build, and then remove non runtime dependencies
