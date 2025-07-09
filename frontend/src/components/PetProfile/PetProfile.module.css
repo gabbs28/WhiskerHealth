@@ -1,0 +1,26 @@
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    align-items: center;
+    width: 100%;
+
+    .navigation {
+        padding-bottom: 20px;
+    }
+
+    .grid {
+        /* Local override for style; don't show "undefined" in element class */
+
+        .box {
+            /* Local override for style; don't show "undefined" in element class */
+
+            .header {
+                /* Local override for style; don't show "undefined" in element class */
+            }
+
+            .content {
+                /* Local override for style; don't show "undefined" in element class */
+            }
+        }
+    }
+}

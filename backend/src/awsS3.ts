@@ -1,10 +1,10 @@
 import AWS from 'aws-sdk';
+// const multer = require("multer");
+import multer from 'multer';
 
 // const AWS = require("aws-sdk");
 // name of your bucket here
 const NAME_OF_BUCKET = process.env.AWS_BUCKET_NAME;
-// const multer = require("multer");
-import multer from 'multer';
 
 //  make sure to set environment variables in production for:
 //  AWS_ACCESS_KEY_ID

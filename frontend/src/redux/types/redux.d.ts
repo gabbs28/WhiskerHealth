@@ -6,10 +6,3 @@ export interface CSRFHttpOptions {
     headers?: { [key: string]: string };
     body?: string | FormData;
 }
-
-// T should represent an enum of possible action types
-// P should represent a list of the possible values of the payload
-export interface ActionCreator<T, P> {
-    type: T;
-    payload: P | null;
-}

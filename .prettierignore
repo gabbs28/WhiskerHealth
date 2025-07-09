@@ -22,5 +22,4 @@ package-lock.json
 # Prisma
 backend/src/database/prisma-client/**
 frontend/src/database/**
-prisma/**
-!prisma/prisma/seed.ts
+prisma/src/prisma-client/**

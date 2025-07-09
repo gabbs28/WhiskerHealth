@@ -1,21 +1,30 @@
-// Global path for JSON.stringify
-import './utils/json';
-
+// https://www.npmjs.com/package/json-with-bigint
+// Handle BigInt correctly and uniformly between seeding, backend, and frontend
+// Should be loaded in the entrypoint file to ensure proper usage
+// JSONParse('{"someBigNumber":9007199254740992}')
+// JSONStringify({ someBigNumber: 9007199254740992n })
+import { JSONParse, JSONStringify } from 'json-with-bigint';
 import 'express-async-errors';
-import express, { Request, Response } from 'express';
-
+import express, { type Request, type Response } from 'express';
+import { dirname } from 'dirname-filename-esm';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import routes from './routes';
+import routes from './routes/index.js';
 
-import { isProduction } from './config';
-import { generateErrorResponse } from './utils/errors';
+import { isProduction } from './config/index.js';
+import { generateErrorResponse } from './utils/errors.js';
+
+JSON.stringify = JSONStringify;
+JSON.parse = JSONParse;
 
 // Frontend location
-//https://nodejs.org/docs/latest/api/modules.html#__dirname
+// https://nodejs.org/docs/latest/api/modules.html#__dirname
+//const frontend = [__dirname, '..', '..', 'frontend', 'dist'];
+// https://www.npmjs.com/package/dirname-filename-esm
+const __dirname = dirname(import.meta);
 const frontend = [__dirname, '..', '..', 'frontend', 'dist'];
 
 export const app = express();

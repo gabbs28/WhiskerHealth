@@ -1,4 +1,4 @@
-import { users } from '../prisma-client/client';
+import type { users } from '../prisma-client/client.js';
 
 // The "as const" at the end means you can't edit the object
 export const SelectSafeUser = {

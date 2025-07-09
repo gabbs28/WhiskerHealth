@@ -1,19 +1,20 @@
-import type { AnyAction, Middleware } from 'redux';
 import {
+    Action,
     applyMiddleware,
     combineReducers,
     compose,
     legacy_createStore as createStore,
+    Middleware,
 } from 'redux';
 import { createLogger } from 'redux-logger';
-import thunk, { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import { thunk, ThunkAction, ThunkDispatch } from 'redux-thunk';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import { SessionInitialState } from './types/session.d.ts';
-import { PetInitialState } from './types/pets.d.ts';
-import { NoteInitialState } from './types/notes.d.ts';
 import sessionReducer from './session';
 import petsReducer from './pets';
 import notesReducer from './notes';
+import { SessionInitialState } from './types/session';
+import { PetInitialState } from './types/pets';
+import { NoteInitialState } from './types/notes';
 
 // Combined root state type
 export interface RootState {
@@ -22,7 +23,7 @@ export interface RootState {
     notes: NoteInitialState;
 }
 
-const rootReducer = combineReducers<RootState>({
+const rootReducer = combineReducers({
     session: sessionReducer,
     pets: petsReducer,
     notes: notesReducer,
@@ -54,9 +55,9 @@ export type AppThunk<ReturnType = void> = ThunkAction<
     Promise<ReturnType>,
     RootState,
     unknown,
-    AnyAction
+    Action
 >;
-export type AppDispatch = ThunkDispatch<RootState, unknown, AnyAction>;
+export type AppDispatch = ThunkDispatch<RootState, unknown, Action>;
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export default store;

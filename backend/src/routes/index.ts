@@ -1,15 +1,16 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 import csurf from 'csurf';
 
-import apiRouter from './api';
-import { isProduction } from '../config';
-import { restoreUser } from '../utils/auth';
+import apiRouter from './api/index.js';
+import { isProduction } from '../config/index.js';
+import { restoreUser } from '../utils/auth.js';
 
 const router = express.Router();
 
 // Enable cross-site forgery protection
 router.use(
-    // @ts-ignore (not sure why this is needed )
+    // the library hasn't been updated in over five years, see replacement csrf-csrf
+    // https://www.npmjs.com/package/csrf-csrf
     csurf({
         cookie: {
             secure: isProduction,
@@ -19,11 +20,19 @@ router.use(
     }),
 );
 
+// Add health endpoint for Render
+router.get('/health', (_request: Request, response: Response) => {
+    response.json({
+        status: 'ok',
+    });
+});
+
 // Add CSRF restore endpoint
-router.get('/api/csrf/restore', (req: Request, res: Response, _next: NextFunction) => {
-    const csrfToken = req.csrfToken();
-    res.cookie('XSRF-TOKEN', csrfToken);
-    res.json({
+router.get('/api/csrf/restore', (request: Request, response: Response) => {
+    const csrfToken = request.csrfToken();
+
+    response.cookie('XSRF-TOKEN', csrfToken);
+    response.json({
         'XSRF-Token': csrfToken,
     });
 });

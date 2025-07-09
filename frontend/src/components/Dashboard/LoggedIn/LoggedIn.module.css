@@ -1,41 +1,15 @@
 .container {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(400px, 1fr));
-    gap: 20px;
-    width: 100%;
-    max-width: 1200px;
-    height: 100%;
+    /* Local override for style; don't show "undefined" in element class */
 
     .box {
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        background-color: white;
-        min-height: 300px;
-        display: flex;
-        flex-direction: column;
+        /* Local override for style; don't show "undefined" in element class */
 
         .header {
-            padding: 16px;
-            margin: 0;
-            border-bottom: 1px solid #ccc;
-            background-color: #f5f5f5;
-            border-radius: 8px 8px 0 0;
-            text-align: center;
+            /* Local override for style; don't show "undefined" in element class */
         }
 
         .content {
-            padding: 16px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            flex-grow: 1;
-            text-align: center;
+            /* Local override for style; don't show "undefined" in element class */
         }
-    }
-}
-
-@media screen and (max-width: 900px) {
-    .container {
-        /* Stack boxes vertically on smaller screens */
-        grid-template-columns: 1fr;
     }
 }

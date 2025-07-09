@@ -1,3 +1,9 @@
+// https://www.npmjs.com/package/json-with-bigint
+// Handle BigInt correctly and uniformly between seeding, backend, and frontend
+// Should be loaded in the entrypoint file to ensure proper usage
+// JSONParse('{"someBigNumber":9007199254740992}')
+// JSONStringify({ someBigNumber: 9007199254740992n })
+import { JSONParse, JSONStringify } from 'json-with-bigint';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
@@ -7,6 +13,9 @@ import * as sessionActions from './redux/session';
 import './index.css';
 import store from './redux/store';
 import { csrfFetch, restoreCSRF } from './redux/csrf';
+
+JSON.stringify = JSONStringify;
+JSON.parse = JSONParse;
 
 declare global {
     interface Window {

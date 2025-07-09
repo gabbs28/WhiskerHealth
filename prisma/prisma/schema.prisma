@@ -7,14 +7,21 @@ generator seederClient {
 generator backendClient {
   provider     = "prisma-client"
   output       = "../../backend/src/database/prisma-client"
-  moduleFormat = "cjs"
+  moduleFormat = "esm"
 }
- 
+
 generator frontendClient {
   provider     = "prisma-client"
   output       = "../../frontend/src/database"
   moduleFormat = "esm"
 }
+
+// generator zod {
+//   provider         = "zod-prisma-types"
+//   output           = "../../frontend/src/zod-database-schema"
+//   // The client path is relativate from output path of zod
+//   prismaClientPath = "../database-zod/client"
+// }
 
 datasource db {
   provider          = "postgresql"
@@ -302,7 +309,7 @@ enum fecal_color_type {
   Brown
   Black
   Red
-  Brown_with_white_spots @map("Brown with white spots")  
+  Brown_with_white_spots @map("Brown with white spots")
   Yellow
   Orange
   Green

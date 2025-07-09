@@ -1,8 +1,8 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client';
-import { getNoteByID, NoteBody, validateNote } from './helper';
-import { isValidPet } from '../pets/helper';
-import { generateErrorResponse } from '../../../utils/errors';
+import express, { type Request, type Response } from 'express';
+import { prisma } from '../../../database/client.js';
+import { getNoteByID, type NoteBody, validateNote } from './helper.js';
+import { isValidPet } from '../pets/helper.js';
+import { generateErrorResponse } from '../../../utils/errors.js';
 
 const router = express.Router();
 
@@ -10,13 +10,17 @@ const router = express.Router();
 router.put(
     '/:id',
     validateNote,
-    async (request: Request<{ id: number }, {}, NoteBody>, response: Response) => {
+    async (request: Request<{ id: string }, {}, NoteBody>, response: Response) => {
         // Look up the note to see if it belongs to a pet owned by the user
         const note = await getNoteByID(request.params.id);
 
         // Early out if the note doesn't exist
         if (!note) {
-            return response.json(generateErrorResponse('Not Found', 404));
+            // Return error response
+            response.json(generateErrorResponse('Not Found', 404));
+
+            // Early out
+            return;
         }
 
         // Get the id of the user and pet
@@ -31,7 +35,10 @@ router.put(
             console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
             // Return error response
-            return response.json(generateErrorResponse('Forbidden', 403));
+            response.json(generateErrorResponse('Forbidden', 403));
+
+            // Early out
+            return;
         }
 
         // Extract note body

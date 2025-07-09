@@ -1,0 +1,22 @@
+button {
+    padding: var(--spacing-small) var(--spacing-large);
+    border-radius: 20px;
+    border: 1px solid var(--border-color-primary);
+    background-color: var(--background-color-button-primary);
+    cursor: pointer;
+    transition: all var(--transition-duration) var(--transition-easing);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-button-primary);
+}
+
+button.secondary {
+    background-color: var(--background-color-button-secondary);
+    color: var(--color-button-secondary);
+}
+
+button.invisible {
+    background-color: var(--color-inherit);
+    color: var(--color-inherit);
+    border: none;
+    font-weight: inherit;
+}

@@ -1,8 +1,8 @@
 import express from 'express';
-import getRoutes from './pets/get';
-import postRoutes from './pets/post';
-import putRoutes from './pets/put';
-import deleteRoutes from './pets/delete';
+import getRoutes from './pets/get.js';
+import postRoutes from './pets/post.js';
+import putRoutes from './pets/put.js';
+import deleteRoutes from './pets/delete.js';
 
 // Create router
 const router = express.Router();

@@ -1,19 +1,23 @@
-import express, { Request, Response } from 'express';
-import { prisma, Prisma } from '../../../database/client';
-import { generateErrorResponse } from '../../../utils/errors';
-import { isValidPet } from '../pets/helper';
-import { getNoteByID } from './helper';
+import express, { type Request, type Response } from 'express';
+import { prisma, Prisma } from '../../../database/client.js';
+import { generateErrorResponse } from '../../../utils/errors.js';
+import { isValidPet } from '../pets/helper.js';
+import { getNoteByID } from './helper.js';
 
 const router = express.Router();
 
 // delete a note
-router.delete('/:id', async (request: Request<{ id: number }>, response: Response) => {
+router.delete('/:id', async (request: Request<{ id: string }>, response: Response) => {
     // Look up the note to see if it belongs to a pet owned by the user
     const note = await getNoteByID(request.params.id);
 
     // Early out if the note doesn't exist
     if (!note) {
-        return response.json(generateErrorResponse('Not Found', 404));
+        // Return error response
+        response.json(generateErrorResponse('Not Found', 404));
+
+        // Early out
+        return;
     }
 
     // Get the id of the user and pet
@@ -28,7 +32,10 @@ router.delete('/:id', async (request: Request<{ id: number }>, response: Respons
         console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
         // Return error response
-        return response.json(generateErrorResponse('Forbidden', 403));
+        response.json(generateErrorResponse('Forbidden', 403));
+
+        // Early out
+        return;
     }
 
     // Get all pets that belong to the current logged-in user
@@ -45,7 +52,7 @@ router.delete('/:id', async (request: Request<{ id: number }>, response: Respons
     }
 
     // Success
-    response.json({ message: 'Note Deleted' });
+    response.json({ message: 'Notes Deleted' });
 });
 
 // Export router

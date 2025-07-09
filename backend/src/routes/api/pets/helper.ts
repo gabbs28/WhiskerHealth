@@ -1,7 +1,8 @@
 import { body } from 'express-validator';
-import { handleValidationErrors } from '../../../utils/validation';
-import { pets } from '../../../database/prisma-client/client';
-import { prisma } from '../../../database/client';
+import { handleValidationErrors } from '../../../utils/validation.js';
+import type { pets } from '../../../database/prisma-client/client.js';
+import { prisma } from '../../../database/client.js';
+import { toBigIntID } from '../helper.js';
 
 export const validatePet = [
     body('name')
@@ -62,13 +63,13 @@ export interface PetBody
 //checking if the pet belongs to user
 //undefined means not set or null, will use -1 in that case
 export const isValidPet = async (
-    user_id: number | bigint = -1,
-    pet_id: number | bigint = -1,
+    user_id: bigint | undefined | null,
+    pet_id: bigint | string | undefined | null,
 ): Promise<pets> => {
     const pet = await prisma.user_pets.findFirstOrThrow({
         where: {
-            user_id,
-            pet_id,
+            user_id: toBigIntID(user_id),
+            pet_id: toBigIntID(pet_id),
         },
         select: {
             pets: {

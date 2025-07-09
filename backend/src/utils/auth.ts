@@ -1,9 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
-import { SafeUserType } from '../database/selects/users';
+import type { NextFunction, Request, Response } from 'express';
+import type { SafeUserType } from '../database/selects/users.js';
 import jwt from 'jsonwebtoken';
-import { jwtConfig } from '../config';
-import { prisma } from '../database/client';
-import { generateErrorResponse } from './errors';
+import { jwtConfig } from '../config/index.js';
+import { prisma } from '../database/client.js';
+import { generateErrorResponse } from './errors.js';
 
 const { secret, expiresIn } = jwtConfig;
 
@@ -19,7 +19,7 @@ export const createSafeUser = (user: SafeUserType) => {
 
 // Sends a JWT Cookie
 // Accept any objects in the shape of a safe user
-export const setTokenCookie = (res: Response, user: SafeUserType) => {
+export const setTokenCookie = (response: Response, user: SafeUserType) => {
     // Create the token.
     const safeUser = createSafeUser(user);
 
@@ -32,7 +32,7 @@ export const setTokenCookie = (res: Response, user: SafeUserType) => {
     const isProduction = process.env.NODE_ENV === 'production';
 
     // Set the token cookie
-    res.cookie('token', token, {
+    response.cookie('token', token, {
         maxAge: expiresIn * 1000, // maxAge in milliseconds
         httpOnly: true,
         secure: isProduction,
@@ -42,11 +42,14 @@ export const setTokenCookie = (res: Response, user: SafeUserType) => {
     return token;
 };
 
-export const restoreUser = (req: any, res: any, next: NextFunction) => {
-    // token parsed from cookies
-    const { token } = req.cookies;
-    req.user = null;
+export const restoreUser = (request: Request, response: Response, next: NextFunction) => {
+    // Get token from the cookie
+    const { token } = request.cookies;
 
+    // Reset user
+    request.user = null;
+
+    // Attempt to verify token
     return jwt.verify(token as string, secret, async (err, jwtPayload) => {
         if (err) {
             next();
@@ -56,10 +59,13 @@ export const restoreUser = (req: any, res: any, next: NextFunction) => {
         //If the payload is unexpected form clear the cookie and continue
         if (jwtPayload === undefined || typeof jwtPayload === 'string') {
             // Clear cookie
-            res.clearCookie('token');
+            response.clearCookie('token');
 
             // Continue
-            return next();
+            next();
+
+            // Early out
+            return;
         }
 
         // Get user id from payload
@@ -67,7 +73,7 @@ export const restoreUser = (req: any, res: any, next: NextFunction) => {
 
         // Verify the user still exists in the database
         try {
-            req.user = await prisma.users.findUnique({
+            request.user = await prisma.users.findUnique({
                 where: {
                     id: id,
                 },
@@ -79,8 +85,8 @@ export const restoreUser = (req: any, res: any, next: NextFunction) => {
         }
 
         // If the user isn't present, something is up with the payload, so clear it
-        if (!req.user) {
-            res.clearCookie('token');
+        if (!request.user) {
+            response.clearCookie('token');
         }
 
         return next();
@@ -88,12 +94,12 @@ export const restoreUser = (req: any, res: any, next: NextFunction) => {
 };
 
 // If there is no current user, return an error
-export const requireAuth = function (req: Request, res: Response, next: NextFunction) {
+export const requireAuth = function (request: Request, response: Response, next: NextFunction) {
     // Ensure that a user is present otherwise block access
-    if (req.user) {
+    if (request.user) {
         return next();
     }
 
     // Return error
-    res.json(generateErrorResponse('Authentication Required', 401));
+    response.json(generateErrorResponse('Authentication Required', 401));
 };

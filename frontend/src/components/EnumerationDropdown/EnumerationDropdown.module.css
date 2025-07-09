@@ -4,20 +4,15 @@
     align-items: flex-start;
     gap: 8px;
 
-    :is(label) {
-        /* Add label styles here */
+    .wrapper {
+        /* Local override placeholder; prevents "undefined" from showing up in CSS */
     }
 
-    :is(select) {
-        /* Add select styles here */
-
-        :is(option) {
-            /* Add option styles here */
-        }
+    .error {
+        /* Local override placeholder; prevents "undefined" from showing up in CSS */
     }
 
-    /* Might want to make this a global style */
     .helper {
-        /* Add helper styles here */
+        /* Local override placeholder; prevents "undefined" from showing up in CSS */
     }
 }

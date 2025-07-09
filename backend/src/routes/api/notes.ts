@@ -1,8 +1,8 @@
 import express from 'express';
-import getRoutes from './notes/get';
-import postRoutes from './notes/post';
-import putRoutes from './notes/put';
-import deleteRoutes from './notes/delete';
+import getRoutes from './notes/get.js';
+import postRoutes from './notes/post.js';
+import putRoutes from './notes/put.js';
+import deleteRoutes from './notes/delete.js';
 
 // Create router
 const router = express.Router();

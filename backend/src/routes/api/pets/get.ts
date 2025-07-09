@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
-import { prisma } from '../../../database/client';
-import { isValidPet } from './helper';
-import { generateErrorResponse } from '../../../utils/errors';
+import express, { type Request, type Response } from 'express';
+import { prisma } from '../../../database/client.js';
+import { isValidPet } from './helper.js';
+import { generateErrorResponse } from '../../../utils/errors.js';
+import { toBigIntID } from '../helper.js';
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router.get('/', async (request: Request, response: Response) => {
     response.json(petsData);
 });
 
-router.get('/:id', async (request: Request<{ id: number }>, response: Response) => {
+router.get('/:id', async (request: Request<{ id: string }>, response: Response) => {
     // Get the id of the user and pet
     const userId = request.user?.id;
     const petId = request.params.id;
@@ -39,7 +40,7 @@ router.get('/:id', async (request: Request<{ id: number }>, response: Response) 
     // Confirm the pet belongs to the currently logged-in user
     try {
         // Confirm the pet belongs to the currently logged-in user
-        const pet = isValidPet(userId, petId);
+        const pet = await isValidPet(userId, petId);
 
         // Return the pet
         response.json(pet);
@@ -48,15 +49,15 @@ router.get('/:id', async (request: Request<{ id: number }>, response: Response) 
         console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
         // Return error response
-        return response.json(generateErrorResponse('Forbidden', 403));
+        response.json(generateErrorResponse('Forbidden', 403));
     }
 });
 
 // get all pet notes
-router.get('/:id/notes', async (request: Request<{ id: number }>, response: Response) => {
+router.get('/:id/notes', async (request: Request<{ id: string }>, response: Response) => {
     // Get the id of the user and pet
     const userId = request.user?.id;
-    const petId = request.params.id;
+    const petId = toBigIntID(request.params.id);
 
     // Confirm the pet belongs to the currently logged-in user
     try {
@@ -66,7 +67,10 @@ router.get('/:id/notes', async (request: Request<{ id: number }>, response: Resp
         console.log(`user ${userId} tried to access pet ${petId}: ${error}`);
 
         // Return error response
-        return response.json(generateErrorResponse('Forbidden', 403));
+        response.json(generateErrorResponse('Forbidden', 403));
+
+        // Early out
+        return;
     }
 
     // Get all notes for the pet
